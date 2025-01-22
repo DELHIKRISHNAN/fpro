@@ -1,0 +1,21 @@
+{
+    "name": "we",
+    "version": "1.0.0",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+      "bcrypt": "^5.1.1",
+      "cron": "^3.5.0",
+      "ejs": "^3.1.10",
+      "express": "^4.21.2",
+      "firebase-admin": "^13.0.2",
+      "luxon": "^3.5.0"
+    }
+}
+  
