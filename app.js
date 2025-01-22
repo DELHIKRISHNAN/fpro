@@ -1,7 +1,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const path = require('path');
 const { CronJob } = require('cron');
