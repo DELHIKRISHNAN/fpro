@@ -6,20 +6,24 @@ const uuid = require('uuid');
 const path = require('path');
 const { CronJob } = require('cron');
 const { DateTime } = require('luxon');
+require('dotenv').config(); // Load environment variables from .env file
 
 // Initialize Firebase Admin SDK
 
 // Get the Firebase credentials from environment variables
+const admin = require('firebase-admin');
+
+// Get Firebase credentials from environment variables
 const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines in the private key
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  projectId: process.env.FIREBASE_PROJECT_ID,  
+  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,  
 };
 
-// Initialize Firebase Admin SDK with credentials from environment variables
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
 
 const db = admin.firestore();
 
