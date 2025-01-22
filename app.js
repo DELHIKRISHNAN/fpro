@@ -8,7 +8,6 @@ const { CronJob } = require('cron');
 const { DateTime } = require('luxon');
 
 // Initialize Firebase Admin SDK
-const admin = require('firebase-admin');
 
 // Get the Firebase credentials from environment variables
 const serviceAccount = {
