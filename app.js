@@ -11,7 +11,6 @@ require('dotenv').config(); // Load environment variables from .env file
 // Initialize Firebase Admin SDK
 
 // Get the Firebase credentials from environment variables
-const admin = require('firebase-admin');
 
 // Get Firebase credentials from environment variables
 const serviceAccount = {
