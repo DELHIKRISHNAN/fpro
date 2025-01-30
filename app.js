@@ -40,28 +40,47 @@ app.use(express.static(path.join(__dirname, 'templates')));
 const generateApiKey = () => uuid.v4();
 
 // Cron job to reset daily water usage
-const resetDailyUsage = new CronJob('0 0 * * *', async () => {
-    console.log('Resetting daily usage...');
-    const usersSnapshot = await db.collection('users').where('is_admin', '==', false).get();
-    const currentDate = DateTime.now().toISODate();
-
-    usersSnapshot.forEach(async (userDoc) => {
-        const user = userDoc.data();
-        const waterUsage = user.water_usage || [];
-        const usageHistory = user.usage_history || [];
-
-        if (waterUsage.length > 0) {
-            const lastEntry = waterUsage[waterUsage.length - 1];
-            usageHistory.push(lastEntry);
+const resetDailyUsage = async () => {
+    console.log('Manually triggering the reset of water usage and updating water history...');
+    
+    try {
+        const usersSnapshot = await db.collection('users').where('is_admin', '==', false).get();
+        console.log(`Found ${usersSnapshot.size} users.`);  // Check if users are found
+        if (usersSnapshot.empty) {
+            console.log('No users found.');
+            return;
         }
 
-        await db.collection('users').doc(userDoc.id).update({
-            water_usage: [{ date: currentDate, usage: 0 }],
-            usage_history: usageHistory,
-        });
-    });
-});
-resetDailyUsage.start();
+        const currentDate = DateTime.now().toISODate();
+        
+        for (const userDoc of usersSnapshot.docs) {
+            const user = userDoc.data();
+            const waterUsage = user.water_usage || [];
+            const usageHistory = user.usage_history || [];
+
+            console.log(`Updating user: ${userDoc.id}`);  // Log which user is being updated
+
+            if (waterUsage.length > 0) {
+                const lastEntry = waterUsage[waterUsage.length - 1];
+                usageHistory.push(lastEntry);
+            }
+
+            await db.collection('users').doc(userDoc.id).update({
+                water_usage: [{ date: currentDate, usage: 0 }],
+                usage_history: usageHistory,
+            });
+
+            console.log(`Updated water usage for user: ${userDoc.id}`);
+        }
+
+        console.log('Water usage reset and history updated successfully!');
+    } catch (error) {
+        console.error('Error resetting water usage and updating history:', error);
+        throw new Error(error);
+    }
+};
+
+
 
 // Initialize admin user
 (async () => {
@@ -198,6 +217,18 @@ app.get('/update_water_usage', async (req, res) => {
 
     res.status(404).json({ error: 'User not found!' });
 });
+app.get('/trigger-reset', async (req, res) => {
+    console.log('Manual reset triggered');
+    try {
+        await resetDailyUsage();
+        res.send('Cron job triggered manually.');
+    } catch (error) {
+        console.error('Error during trigger-reset route:', error);
+        res.status(500).send('Error triggering cron job manually.');
+    }
+});
+
+
 
 // Start server
 const PORT = process.env.PORT || 8080;
