@@ -382,7 +382,6 @@ a:hover{
 .navbar-default .navbar-nav>.active>a:focus{
     color: #fff;
     background-color: transparent;
-    padding-top: 5%;
 }
 .mobile-nav{
 	display:none;
