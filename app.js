@@ -114,15 +114,31 @@ app.post('/login', async (req, res) => {
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (isPasswordValid) {
-            if (user.is_admin) {
-                return res.redirect('/admin_dashboard');
-            }
             return res.redirect(`/user_dashboard?username=${username}`);
         }
     }
 
     res.status(401).send('Invalid credentials! Please try again.');
 });
+
+// New Admin Login Route
+app.post('/admin_login', async (req, res) => {
+    const { username, password } = req.body;
+    const adminSnapshot = await db.collection('users').where('username', '==', username).where('is_admin', '==', true).get();
+
+    if (!adminSnapshot.empty) {
+        const adminDoc = adminSnapshot.docs[0];
+        const admin = adminDoc.data();
+
+        const isPasswordValid = await bcrypt.compare(password, admin.password);
+        if (isPasswordValid) {
+            return res.redirect('/admin_dashboard');
+        }
+    }
+
+    res.status(401).send('Invalid Admin credentials! Please try again.');
+});
+
 
 // Register route
 app.post('/register', async (req, res) => {
@@ -172,51 +188,134 @@ app.get('/admin_dashboard', async (req, res) => {
 // User dashboard
 app.get('/user_dashboard', async (req, res) => {
     const { username } = req.query;
+    console.log(`Fetching data for username: ${username}`);
+
     const userSnapshot = await db.collection('users').where('username', '==', username).get();
 
-    if (!userSnapshot.empty) {
-        const user = userSnapshot.docs[0].data();
-        const latestUsage = user.water_usage ? user.water_usage.slice(-1)[0] : { date: 'N/A', usage: 0 };
-        return res.render('user_dashboard', { user, latest_usage: latestUsage });
+    if (userSnapshot.empty) {
+        console.log("❌ User not found in Firestore!");
+        return res.status(404).send('User not found!');
     }
 
-    res.status(404).send('User not found!');
+    const user = userSnapshot.docs[0].data();
+    const waterUsage = user.water_usage || [];
+
+    console.log(`Fetched water_usage: ${JSON.stringify(waterUsage, null, 2)}`);
+
+    const todayDate = new Date().toLocaleDateString('en-GB'); // "30/01/2025"
+    console.log(`Today's Date: ${todayDate}`);
+
+    // 📌 **Line Graph Data (Today's Usage)**
+    let todayLabels = [];
+    let todayData = [];
+
+    const todayEntry = waterUsage.find(entry => entry.date === todayDate);
+    if (todayEntry && Array.isArray(todayEntry.usage)) {
+        todayLabels = todayEntry.usage.map((_, index) => `Entry ${index + 1}`);
+        todayData = todayEntry.usage;
+    }
+
+    console.log(`📊 Line Graph Data: ${JSON.stringify(todayData)}`);
+
+    // 📌 **Bar Graph Data (Last 7 Days' Last Entries)**
+    let barLabels = [];
+    let barData = [];
+
+    const last7Days = waterUsage.slice(-7);
+    last7Days.forEach(entry => {
+        if (entry.usage.length > 0) {
+            barLabels.push(entry.date);
+            barData.push(entry.usage[entry.usage.length - 1]); // Last entry of the day
+        }
+    });
+
+    console.log(`📊 Bar Graph Data: ${JSON.stringify(barData)}`);
+
+    // 📌 **Table Data (Last 30 Days' Last Entries)**
+    let tableData = [];
+    const last30Days = waterUsage.slice(-30);
+    last30Days.forEach(entry => {
+        if (entry.usage.length > 0) {
+            tableData.push({
+                date: entry.date,
+                last_entry: entry.usage[entry.usage.length - 1] // Last entry of the day
+            });
+        }
+    });
+
+    console.log(`📄 Table Data: ${JSON.stringify(tableData)}`);
+
+    return res.render('user_dashboard', {
+        user,
+        todayLabels, todayData,
+        barLabels, barData,
+        tableData
+    });
 });
+
+
+
+
 
 // Update water usage
 app.get('/update_water_usage', async (req, res) => {
     const { apikey, new_usage } = req.query;
 
     if (!apikey || !new_usage) {
-        return res.status(400).send('Invalid request. API key and new usage are required.');
+        return res.status(400).json({ error: 'Invalid request. API key and new usage are required.' });
     }
 
-    const userSnapshot = await db.collection('users').where('api_key', '==', apikey).get();
-    if (!userSnapshot.empty) {
-        const userDoc = userSnapshot.docs[0];
-        const user = userDoc.data();
-
-        const currentDate = DateTime.now().toISODate();
-        const waterUsage = user.water_usage || [];
-
-        // Check if today's usage exists
-        const todayEntry = waterUsage.find((entry) => entry.date === currentDate);
-
-        if (todayEntry) {
-            todayEntry.usage = parseInt(new_usage, 10);
-        } else {
-            waterUsage.push({ date: currentDate, usage: parseInt(new_usage, 10) });
+    try {
+        // Find the user by API key
+        const userSnapshot = await db.collection('users').where('api_key', '==', apikey).get();
+        
+        if (userSnapshot.empty) {
+            return res.status(404).json({ error: 'User not found!' });
         }
 
-        await db.collection('users').doc(userDoc.id).update({
-            water_usage: waterUsage,
-        });
+        const userDoc = userSnapshot.docs[0];
+        const userRef = db.collection('users').doc(userDoc.id);
+        const user = userDoc.data();
 
-        return res.json({ message: 'Water usage updated successfully!' });
+        console.log("User found:", user.username); // ✅ Debug log
+
+        // Get today's date
+        const currentDate = new Date().toLocaleDateString('en-GB'); // "30/01/2025"
+
+        // Ensure `water_usage` exists
+        let waterUsage = user.water_usage || [];
+        console.log("Before update:", JSON.stringify(waterUsage, null, 2)); // ✅ Debug log
+
+        // Find today's entry
+        let todayEntry = waterUsage.find(entry => entry.date === currentDate);
+
+        if (todayEntry) {
+            console.log("Existing date found:", currentDate); // ✅ Debug log
+            
+            // ✅ Ensure `usage` is always an array
+            if (!Array.isArray(todayEntry.usage)) {
+                console.log("⚠️ `usage` was NOT an array, fixing it now...");
+                todayEntry.usage = [];
+            }
+
+            todayEntry.usage.push(parseInt(new_usage, 10));
+        } else {
+            console.log("New date entry created:", currentDate); // ✅ Debug log
+            waterUsage.push({ date: currentDate, usage: [parseInt(new_usage, 10)] });
+        }
+
+        console.log("After update:", JSON.stringify(waterUsage, null, 2)); // ✅ Debug log
+
+        // ✅ Force Firestore to always store `usage` as an array
+        await userRef.update({ water_usage: waterUsage });
+
+        return res.json({ message: 'Water usage updated successfully!', waterUsage });
+    } catch (error) {
+        console.error('❌ Error updating water usage:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
-
-    res.status(404).json({ error: 'User not found!' });
 });
+
 app.get('/trigger-reset', async (req, res) => {
     console.log('Manual reset triggered');
     try {

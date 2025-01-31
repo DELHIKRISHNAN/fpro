@@ -211,7 +211,7 @@
 
         <!-- Login Form -->
         <div class="form-container hidden" id="login-form">
-            <h2>Login</h2>
+            <h2>User Login</h2>
             <form method="post" action="/login">
                 <div class="form-group">
                     <label for="username">Username</label>
@@ -224,25 +224,50 @@
                 <button type="submit" class="btn">Login</button>
             </form>
             <div class="toggle-link">
-                New here? <a onclick="toggleForm('register')">Register</a>
+                <a onclick="toggleForm('register')">New here? Register</a> |
+                <a onclick="toggleForm('admin')">Login as Admin</a>
             </div>
         </div>
-    </div>
-
-    <script>
-        // JavaScript to toggle between Login and Register forms
-        function toggleForm(formType) {
-            const registerForm = document.getElementById('register-form');
-            const loginForm = document.getElementById('login-form');
-
-            if (formType === 'login') {
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-            } else {
-                registerForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
+        
+        <!-- Admin Login Form -->
+        <div class="form-container hidden" id="admin-login-form">
+            <h2>Admin Login</h2>
+            <form method="post" action="/admin_login">
+                <div class="form-group">
+                    <label for="admin-username">Admin Username</label>
+                    <input type="text" id="admin-username" name="username" placeholder="Enter admin username" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" name="password" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn">Login as Admin</button>
+            </form>
+            <div class="toggle-link">
+                <a onclick="toggleForm('login')">Back to User Login</a>
+            </div>
+        </div>
+        
+        <script>
+            function toggleForm(formType) {
+                const registerForm = document.getElementById('register-form');
+                const loginForm = document.getElementById('login-form');
+                const adminLoginForm = document.getElementById('admin-login-form');
+        
+                if (formType === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    adminLoginForm.classList.add('hidden');
+                } else if (formType === 'register') {
+                    registerForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                    adminLoginForm.classList.add('hidden');
+                } else if (formType === 'admin') {
+                    adminLoginForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.add('hidden');
+                }
             }
-        }
-    </script>
+        </script>
 </body>
 </html>

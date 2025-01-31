@@ -329,6 +329,11 @@ a:hover{
 /* ----------------------------------------------------------------
     [ End Buttons ]
 -----------------------------------------------------------------*/
+@media (max-width: 768px) { 
+    .logo p {
+        display: none; /* Hide the "Water Tracker" text on mobile */
+    }
+}
 
 
 /* ----------------------------------------------------------------
@@ -344,6 +349,9 @@ a:hover{
     transition: all 0.4s ease-in-out;
     -webkit-transition: all 0.4s ease-in-out;
     padding-top: 11%;
+    position: fixed;
+    top: 0;
+    transform: translateY(-100%);
 }
 .navbar-brand p{
     font-size: 32px;
@@ -433,10 +441,10 @@ a:hover{
 .circle-images-container {
     padding-top: 0%;
     display: flex;
-    justify-content: center; /* Center images */
+    justify-content: space-between; /* Push images to both ends */
     align-items: center;
-    gap: 40px; /* Space between images */
     position: relative;
+    width: 100%; /* Ensures full width */
     z-index: 1000; /* Ensures it stays above other elements */
 }
 

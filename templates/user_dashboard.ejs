@@ -1,237 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Reset default styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #6fb1fc, #1c74d3);
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
+        <link rel="stylesheet" href="assets/css/styles.css">
 
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -1;
-        }
+        <!-- =====BOX ICONS===== -->
+        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
 
-        .wave {
-            position: absolute;
-            width: 200%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            opacity: 0.5;
-            animation: waveAnimation 10s linear infinite;
-        }
+        <title>Portfolio website complete</title>
+    </head>
+    <body>
+        <!--===== HEADER =====-->
+        <header class="l-header">
+            <nav class="nav bd-grid">
+                <div>
+                    <a href="#" class="nav__logo">User Dashboard</a>
+                </div>
 
-        .wave:nth-child(1) {
-            top: 20%;
-            animation-duration: 12s;
-        }
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item"><a href="#home" class="nav__link active-link">Home</a></li>
+                        <li class="nav__item"><a href="#about" class="nav__link">Today</a></li>
+                        <li class="nav__item"><a href="#skills" class="nav__link">Weekly</a></li>
+                        <li class="nav__item"><a href="#work" class="nav__link">Monthly</a></li>
+                    </ul>
+                </div>
 
-        .wave:nth-child(2) {
-            top: 40%;
-            animation-duration: 10s;
-        }
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class='bx bx-menu'></i>
+                </div>
+            </nav>
+        </header>
 
-        .wave:nth-child(3) {
-            top: 60%;
-            animation-duration: 8s;
-        }
+        <main class="l-main">
+            <!--===== HOME =====-->
+            <section class="home bd-grid" id="home">
+                <div class="home__data">
+                    <h1 class="home__title">Welcome,<br> <span class="home__title-color">UserName</span><br> Your Water Usage!</h1>
+                </div>
+            
+                <div class="home__social">
+                    <a href="" class="home__social-icon"><i class='fa-solid fa-droplet icon'></i></a>
+                    <a href="" class="home__social-icon"><i class='fa-solid fa-chart-line'></i></a>
+                    <a href="" class="home__social-icon"><i class='fa-solid fa-house'></i></a>
+                </div>
+            
+                <!-- Replace home_img with Globe -->
+                <div class="home__img" style="width: 100%; padding: 20px;">
+                    <div id="chartdiv-globe" style="width: 100%; height: 400px; padding-left: 40%;"></div>
+                </div>
+            </section>
+            
+            <!-- Resources for Globe -->
+            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+            <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+            <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+            <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+            
+            <script>
+                am5.ready(function() {
+                    // Create root element for the chart
+                    var root = am5.Root.new("chartdiv-globe");
+                    root.setThemes([am5themes_Animated.new(root)]);
+            
+                    // Create the map chart
+                    var chart = root.container.children.push(am5map.MapChart.new(root, {
+                        panX: "rotateX",
+                        panY: "rotateY",
+                        projection: am5map.geoOrthographic(),
+                        paddingBottom: 20,
+                        paddingTop: 20,
+                        paddingLeft: 20,
+                        paddingRight: 20
+                    }));
+            
+                    // Create main polygon series for countries
+                    var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+                        geoJSON: am5geodata_worldLow
+                    }));
+            
+                    polygonSeries.mapPolygons.template.setAll({
+                        tooltipText: "{name}",
+                        toggleKey: "active",
+                        interactive: true
+                    });
+            
+                    polygonSeries.mapPolygons.template.states.create("hover", {
+                        fill: root.interfaceColors.get("primaryButtonHover")
+                    });
+            
+                    // Create background fill
+                    var backgroundSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
+                    backgroundSeries.mapPolygons.template.setAll({
+                        fill: root.interfaceColors.get("alternativeBackground"),
+                        fillOpacity: 0.1,
+                        strokeOpacity: 0
+                    });
+                    backgroundSeries.data.push({
+                        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+                    });
+            
+                    // Add graticule lines
+                    var graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+                    graticuleSeries.mapLines.template.setAll({ strokeOpacity: 0.1, stroke: root.interfaceColors.get("alternativeBackground") });
+            
+                    // Animate globe rotation
+                    chart.animate({
+                        key: "rotationX",
+                        from: 0,
+                        to: 360,
+                        duration: 30000,
+                        loops: Infinity
+                    });
+                    // Create root element
+                    var root = am5.Root.new("chartdiv");
 
-        @keyframes waveAnimation {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
+// Remove amCharts watermark (requires a valid license)
+                    root._logo.dispose();
 
-        .container {
-            background: #fff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 700px;
-            text-align: center;
-            animation: fadeIn 1s ease-in-out;
-        }
+            
+                    // Make the chart and globe appear
+                    
+                }); // end am5.ready()
+            </script>
+            
+            
 
-        h1 {
-            color: #4CAF50;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
+            <!--===== ABOUT =====-->
+            <section class="about section " id="about">
+                <h2 class="section-title">Today's Water Usage</h2>
 
-        h2 {
-            color: #0bdfdbfb;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        p {
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 10px;
-        }
+                <!-- HTML -->
+                <div style="width: 80%; height: 400px; margin: 0 auto; padding-left: 12%;">
+                    <canvas id="waterUsageChart"></canvas>
+                </div>
 
-        .graph-container {
-            margin-top: 20px;
-            position: relative;
-        }
+                <!-- Chart.js Script -->
+                <script>
+                    const labels = <%- JSON.stringify(todayLabels) %>;
+                    const data = <%- JSON.stringify(todayData) %>;
 
-        canvas {
-            border-radius: 10px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+                    if (labels.length === 0 || data.length === 0) {
+                        console.warn("⚠️ No data available for today's usage.");
+                    } else {
+                        const ctx = document.getElementById('waterUsageChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Water Usage (Liters)',
+                                    data: data,
+                                    borderColor: 'blue',
+                                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                                    fill: true,
+                                    tension: 0.3
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: { title: { display: true, text: 'Time Entries' }},
+                                    y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
+                                }
+                            }
+                        });
+                    }
+                </script>
+            </section>
 
-        canvas:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
+            <!--===== SKILLS =====-->
+            <section class="skills section" id="skills">
+                <h2 class="section-title">Weekly Usage!</h2>
 
-        .logout-btn {
-            margin-top: 20px;
-            padding: 12px 25px;
-            background: #d9534f;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-        }
+                <!-- Include Chart.js Library -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        .logout-btn:hover {
-            background: #c9302c;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
+                <!-- HTML -->
+                <div style="width: 80%; height: 400px; margin: 0 auto; padding-left: 12%;">
+                    <canvas id="barChart"></canvas>
+                </div>
 
-        .logout-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+                    <!-- Chart.js Script -->
+                    <script>
+                        const barLabels = <%- JSON.stringify(barLabels) %>;
+                        const barData = <%- JSON.stringify(barData) %>;
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="background">
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="wave"></div>
-    </div>
-
-    <div class="container">
-        <h1>Welcome, <%= user.username %></h1>
-        <h2>Today's Water Usage</h2>
-        <p><strong>Date:</strong> <%= latest_usage.date %></p>
-        <p><strong>Usage:</strong> <%= latest_usage.usage %> L</p>
-        <div class="graph-container">
-            <canvas id="waterUsageChart" width="400" height="200"></canvas>
-        </div>
-        <button class="logout-btn" onclick="window.location.href='/login'">Logout</button>
-    </div>
-
-    <script>
-        // Replace with actual data passed from the server
-        const waterUsageData = <%- JSON.stringify(user.water_usage) %>;
-
-        // Parse data for the chart
-        const labels = waterUsageData.map(data => data.date);
-        const usageData = waterUsageData.map(data => data.usage);
-
-        // Initialize the chart with animation
-        const ctx = document.getElementById('waterUsageChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Water Usage (Liters)',
-                    data: usageData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    hoverBackgroundColor: 'rgba(54, 162, 235, 0.8)',
-                    hoverBorderColor: 'rgba(54, 162, 235, 1)',
-                }]
-            },
-            options: {
-                responsive: true,
-                animation: {
-                    duration: 2000, // 2 seconds
-                    easing: 'easeOutBounce',
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            color: '#333',
-                            font: { size: 14 }
+                        if (barLabels.length === 0 || barData.length === 0) {
+                            console.warn("⚠️ No data available for the last 7 days.");
+                        } else {
+                            const ctx = document.getElementById('barChart').getContext('2d');
+                            new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: barLabels,
+                                    datasets: [{
+                                        label: 'Water Usage (Liters)',
+                                        data: barData,
+                                        backgroundColor: 'green'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        x: { title: { display: true, text: 'Date' }},
+                                        y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
+                                    }
+                                }
+                            });
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date',
-                            color: '#666',
-                            font: { size: 16 }
-                        },
-                        grid: { display: false },
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Water Usage (Liters)',
-                            color: '#666',
-                            font: { size: 16 }
-                        },
-                        beginAtZero: true,
-                    }
-                }
-            }
-        });
-    </script>
-</body>
+                    </script>
+
+            </section>
+
+            <!--===== WORK =====-->
+            <section class="work section" id="work">
+                <h2 class="section-title">Water Usage History</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Last Entry (Liters)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (tableData.length > 0) { %>
+                                <% tableData.forEach(entry => { %>
+                                    <tr>
+                                        <td><%= entry.date %></td>
+                                        <td><%= entry.last_entry %> L</td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="2">No data available for the last 30 days.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            
+                <script>
+                    // Sample data fetched from a database
+                    
+                </script>
+            </section>
+
+            <!--===== CONTACT =====-->
+            
+        </main>
+
+        <!--===== FOOTER =====-->
+        <footer class="footer">
+            <p class="footer__title">Water Tracker</p>
+            <div class="footer__social">
+                <a href="#" class="footer__icon"><i class='fa-solid fa-droplet icon' ></i></a>
+                <a href="#" class="footer__icon"><i class='fa-solid fa-chart-line' ></i></a>
+                <a href="#" class="footer__icon"><i class='fa-solid fa-house' ></i></a>
+            </div>
+            <p class="footer__copy">&#169; Water Tracker. All rights reserved</p>
+        </footer>
+
+
+        <!--===== SCROLL REVEAL =====-->
+        <script src="https://unpkg.com/scrollreveal"></script>
+
+        <!--===== MAIN JS =====-->
+        <script src="assets/js/main.js"></script>
+    </body>
 </html>

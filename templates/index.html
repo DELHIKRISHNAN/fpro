@@ -37,10 +37,10 @@
 			</div>
 		<!-- END PRELOADER -->
 		<div class="circle-images-container">
-			<img src="images/tamil-nadu-government-logo-png-1.jpg" alt="Image 4" class="circle-img">
-			
-			
+			<img src="images/tamil-nadu-government-logo-png-1.jpg" alt="Left Image" class="circle-img">
+			<img src="images/CCMC_Logo.png" alt="Right Image" class="circle-img">
 		</div>
+		
 			
 		
 		<!-- START NAVBAR -->
@@ -58,9 +58,33 @@
 							<li><a href="#service">Service</a></li>												
 							<li><a href="#contact">Contact</a></li>
 						</ul>
-					</div> 
+					</div>
+					<script>
+						document.addEventListener("DOMContentLoaded", function () {
+							let navbar = document.querySelector(".navbar");
+							let lastScrollY = window.scrollY;
+					
+							// Show navbar if at the top of the page on load
+							if (window.scrollY === 0) {
+								navbar.style.transform = "translateY(0)";
+							} else {
+								navbar.style.transform = "translateY(-100%)";
+							}
+					
+							window.addEventListener("scroll", function () {
+								if (window.scrollY < lastScrollY) {
+									navbar.style.transform = "translateY(0)"; // Show navbar when scrolling up
+								} else {
+									navbar.style.transform = "translateY(-100%)"; // Hide navbar when scrolling down
+								}
+								lastScrollY = window.scrollY;
+							});
+						});
+					</script>
+					 
 				</div><!--- END CONTAINER -->
-			</div> 
+			</div>
+			 
 		<!-- END NAVBAR -->	
 			<!-- START NOTIFICATION BAR -->
 			
