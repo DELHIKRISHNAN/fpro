@@ -64,10 +64,82 @@ a {
   text-decoration: none;
 }
 
+/*===== CHART ===== */
+
 img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;  /* Centers horizontally */
+  align-items: center;      /* Centers vertically */
+  width: 100%;
+  height: 100vh;            /* Full viewport height */
+  margin: 0 auto; /* Center the graph inside */
+}
+
+
+canvas {
+  max-width: 70%;   /* Prevents overflow */
+  max-height: 60%;  /* Prevents overflow */
+  width: 50%;        /* Adjust size for desktop */
+  height: auto;      /* Keeps aspect ratio */
+}
+
+
+
+/* Default (Desktop/Tablets) */
+#chartdiv-globe {
+  width: 75%;    /* Default width for larger screens */
+  height: 600px;
+  place-items: end;
+  padding-left: 60%;
+  padding-top: 17%; /* Default height for larger screens */
+}
+
+/* Mobile View (Screens smaller than 768px) */
+@media (max-width: 767px) {
+  #chartdiv-globe {
+    width: 80%;    /* Smaller width for mobile */
+    height: 350px;
+    padding-left: 35%; /* Smaller height for mobile */
+  }
+}
+
+
+
+@media screen and (max-width: 768px) {
+  .chart-container {
+    display: flex;
+    justify-content: center;  /* Centers charts horizontally */
+    align-items: center;      /* Centers charts vertically */
+    width: 100%;
+    height: 70%;            /* Ensures container takes full screen height */
+    margin: 0 auto;
+    padding: 0;               /* Remove any padding inside the container */
+    flex-direction: column;   /* Stack charts vertically if you have multiple charts */
+  }
+  
+  /* Remove unwanted space between canvas elements */
+  canvas {
+    max-width: 100%;   /* Prevents overflow */
+    max-height: 100%;  /* Prevents overflow */
+    width: 80%;        /* Adjust size for desktop */
+    height: auto;      /* Keep aspect ratio */
+    margin: 0;         /* Remove any margin around the canvas */
+  }
+}
+.graph-section {
+    margin-bottom: 20px; /* Reduce gap between graphs */
+}
+
+@media screen and (max-width: 768px) {
+    .graph-section {
+        margin-bottom: 10px; /* Even smaller gap in mobile */
+    }
 }
 
 /*===== CLASS CSS ===== */

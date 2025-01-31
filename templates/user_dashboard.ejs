@@ -10,7 +10,7 @@
         <!-- =====BOX ICONS===== -->
         <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
 
-        <title>Portfolio website complete</title>
+        <title>User Dashboard</title>
     </head>
     <body>
         <!--===== HEADER =====-->
@@ -50,7 +50,7 @@
             
                 <!-- Replace home_img with Globe -->
                 <div class="home__img" style="width: 100%; padding: 20px;">
-                    <div id="chartdiv-globe" style="width: 100%; height: 400px; padding-left: 40%;"></div>
+                    <div id="chartdiv-globe" ></div>
                 </div>
             </section>
             
@@ -134,12 +134,12 @@
                 <h2 class="section-title">Today's Water Usage</h2>
 
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+                
                 <!-- HTML -->
-                <div style="width: 80%; height: 400px; margin: 0 auto; padding-left: 12%;">
+                <div class = "chart-container">
                     <canvas id="waterUsageChart"></canvas>
                 </div>
-
+            
                 <!-- Chart.js Script -->
                 <script>
                     const labels = <%- JSON.stringify(todayLabels) %>;
@@ -172,6 +172,7 @@
                         });
                     }
                 </script>
+                
             </section>
 
             <!--===== SKILLS =====-->
@@ -180,12 +181,12 @@
 
                 <!-- Include Chart.js Library -->
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+                
                 <!-- HTML -->
-                <div style="width: 80%; height: 400px; margin: 0 auto; padding-left: 12%;">
+                <div class = "chart-container">
                     <canvas id="barChart"></canvas>
                 </div>
-
+                
                     <!-- Chart.js Script -->
                     <script>
                         const barLabels = <%- JSON.stringify(barLabels) %>;
@@ -215,6 +216,7 @@
                             });
                         }
                     </script>
+                </div>
 
             </section>
 
@@ -274,5 +276,6 @@
 
         <!--===== MAIN JS =====-->
         <script src="assets/js/main.js"></script>
+        
     </body>
 </html>
