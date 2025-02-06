@@ -205,11 +205,11 @@
                         <tr>
                             <td><%= user.username %></td>
                             <td><%= user.api_key %></td>
-                            <td><%= user.latest_usage %></td>
+                            <td><%= user.latest_usage %></td> <!-- Display only the last usage value -->
                         </tr>
                     <% }); %>
                 </tbody>
-            </table>
+            </table>            
         </section>
         <button class="logout-btn" onclick="window.location.href='/login'">Logout</button>
     </div>

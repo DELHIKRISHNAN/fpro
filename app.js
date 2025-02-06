@@ -170,20 +170,33 @@ app.get('/admin_dashboard', async (req, res) => {
 
     usersSnapshot.forEach((userDoc) => {
         const user = userDoc.data();
-        const latestUsage = user.water_usage ? user.water_usage.slice(-1)[0] : { date: 'N/A', usage: 0 };
+
+        // Check if water_usage exists and has entries
+        const latestEntry = user.water_usage && user.water_usage.length > 0
+            ? user.water_usage[user.water_usage.length - 1] // Get the last entry in the array (most recent date)
+            : { date: 'N/A', usage: [0] }; // Default to N/A and 0 if no data
+
+        // Get the last usage value of the most recent date
+        const latestUsage = latestEntry.usage[latestEntry.usage.length - 1]; // Get the last value in the usage array
+
         const apiKey = user.api_key || 'N/A';
 
-        if (!user.is_admin) {
-            userData.push({
-                username: user.username,
-                api_key: apiKey,
-                latest_usage: latestUsage.usage,
-            });
-        }
+        // Add only the latest usage value
+        userData.push({
+            username: user.username,
+            api_key: apiKey,
+            latest_usage: latestUsage, // Display only the last usage value
+        });
     });
+
+    // Log the userData to check the output before rendering
+    console.log(userData); 
 
     res.render('admin_dashboard', { users: userData });
 });
+
+
+
 
 // User dashboard
 app.get('/user_dashboard', async (req, res) => {
