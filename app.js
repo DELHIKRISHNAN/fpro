@@ -158,6 +158,7 @@ app.post('/register', async (req, res) => {
         api_key: apiKey,
         water_usage: [{ date: DateTime.now().toISODate(), usage: 0 }],
         usage_history: [],
+        water_limit: 100
     });
 
     res.redirect(`/user_dashboard?username=${username}`);
@@ -171,31 +172,70 @@ app.get('/admin_dashboard', async (req, res) => {
     usersSnapshot.forEach((userDoc) => {
         const user = userDoc.data();
 
-        // Check if water_usage exists and has entries
         const latestEntry = user.water_usage && user.water_usage.length > 0
-            ? user.water_usage[user.water_usage.length - 1] // Get the last entry in the array (most recent date)
-            : { date: 'N/A', usage: [0] }; // Default to N/A and 0 if no data
+            ? user.water_usage[user.water_usage.length - 1]
+            : { date: 'N/A', usage: [0] };
 
-        // Get the last usage value of the most recent date
-        const latestUsage = latestEntry.usage[latestEntry.usage.length - 1]; // Get the last value in the usage array
-
+        const latestUsage = latestEntry.usage[latestEntry.usage.length - 1];
         const apiKey = user.api_key || 'N/A';
+        const waterLimit = user.water_limit || 100; // Default to 100 if not set
 
-        // Add only the latest usage value
         userData.push({
             username: user.username,
             api_key: apiKey,
-            latest_usage: latestUsage, // Display only the last usage value
+            latest_usage: latestUsage,
+            water_limit: waterLimit, // Add water limit to the user data
         });
     });
-
-    // Log the userData to check the output before rendering
-    console.log(userData); 
 
     res.render('admin_dashboard', { users: userData });
 });
 
 
+
+app.post('/set_water_limit', async (req, res) => {
+    const { apikey, water_limit } = req.query;
+
+    if (!apikey || !water_limit) {
+        return res.status(400).json({ error: 'API key and water limit are required.' });
+    }
+
+    try {
+        const userSnapshot = await db.collection('users').where('api_key', '==', apikey).get();
+
+        if (userSnapshot.empty) {
+            return res.status(404).json({ error: 'User not found!' });
+        }
+
+        const userDoc = userSnapshot.docs[0];
+        const userRef = db.collection('users').doc(userDoc.id);
+
+        await userRef.update({ water_limit: parseInt(water_limit, 10) });
+
+        return res.json({ message: 'Water limit updated successfully!' });
+    } catch (error) {
+        console.error('❌ Error updating water limit:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+app.get('/get_water_limit', async (req, res) => {
+    try {
+        const limitDoc = await db.collection('config').doc('water_limit').get();
+
+        if (!limitDoc.exists) {
+            return res.status(404).json({ error: 'No water usage limit found.' });
+        }
+
+        const limitData = limitDoc.data();
+        return res.json({ limit: limitData.limit });
+    } catch (error) {
+        console.error('Error fetching water usage limit:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 // User dashboard
@@ -288,46 +328,40 @@ app.get('/update_water_usage', async (req, res) => {
 
         const userDoc = userSnapshot.docs[0];
         const userRef = db.collection('users').doc(userDoc.id);
-        const user = userDoc.data();
+        const userData = userDoc.data();
 
-        console.log("User found:", user.username); // ✅ Debug log
+        // Get user's water limit from Firestore (updated by admin dashboard)
+        const waterLimit = userData.water_limit || 'Not Set';
 
         // Get today's date
-        const currentDate = new Date().toLocaleDateString('en-GB'); // "30/01/2025"
+        const currentDate = new Date().toLocaleDateString('en-GB'); // "08/02/2025"
 
         // Ensure `water_usage` exists
-        let waterUsage = user.water_usage || [];
-        console.log("Before update:", JSON.stringify(waterUsage, null, 2)); // ✅ Debug log
-
-        // Find today's entry
+        let waterUsage = userData.water_usage || [];
         let todayEntry = waterUsage.find(entry => entry.date === currentDate);
 
         if (todayEntry) {
-            console.log("Existing date found:", currentDate); // ✅ Debug log
-            
-            // ✅ Ensure `usage` is always an array
             if (!Array.isArray(todayEntry.usage)) {
-                console.log("⚠️ `usage` was NOT an array, fixing it now...");
                 todayEntry.usage = [];
             }
-
             todayEntry.usage.push(parseInt(new_usage, 10));
         } else {
-            console.log("New date entry created:", currentDate); // ✅ Debug log
             waterUsage.push({ date: currentDate, usage: [parseInt(new_usage, 10)] });
         }
 
-        console.log("After update:", JSON.stringify(waterUsage, null, 2)); // ✅ Debug log
-
-        // ✅ Force Firestore to always store `usage` as an array
+        // Update Firestore
         await userRef.update({ water_usage: waterUsage });
 
-        return res.json({ message: 'Water usage updated successfully!', waterUsage });
+        return res.json({ waterLimit });
+
     } catch (error) {
-        console.error('❌ Error updating water usage:', error);
+        console.error('Error updating water usage:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
+
 
 app.get('/trigger-reset', async (req, res) => {
     console.log('Manual reset triggered');

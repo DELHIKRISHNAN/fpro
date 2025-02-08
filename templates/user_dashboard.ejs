@@ -11,6 +11,32 @@
         <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
 
         <title>User Dashboard</title>
+        <style>
+            /* 🔥 Logout Button with Animation & Hover Effect */
+            .logout-btn {
+                background: #4f4fd9;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s ease-in-out;
+                box-shadow: 0 4px 8px rgba(100, 79, 217, 0.5);
+                
+            }
+    
+            .logout-btn:hover {
+                background: #392cc9;
+                transform: scale(1.05);
+                box-shadow: 0 6px 12px rgba(93, 79, 217, 0.7);
+            }
+    
+            .logout-btn:active {
+                transform: scale(0.98);
+            }
+        </style>
     </head>
     <body>
         <!--===== HEADER =====-->
@@ -18,6 +44,8 @@
             <nav class="nav bd-grid">
                 <div>
                     <a href="#" class="nav__logo">User Dashboard</a>
+                    
+                    
                 </div>
 
                 <div class="nav__menu" id="nav-menu">
@@ -26,13 +54,17 @@
                         <li class="nav__item"><a href="#about" class="nav__link">Today</a></li>
                         <li class="nav__item"><a href="#skills" class="nav__link">Weekly</a></li>
                         <li class="nav__item"><a href="#work" class="nav__link">Monthly</a></li>
+                        
                     </ul>
                 </div>
+                
 
                 <div class="nav__toggle" id="nav-toggle">
                     <i class='bx bx-menu'></i>
                 </div>
+                
             </nav>
+            
         </header>
 
         <main class="l-main">
@@ -46,7 +78,9 @@
                     <a href="" class="home__social-icon"><i class='fa-solid fa-droplet icon'></i></a>
                     <a href="" class="home__social-icon"><i class='fa-solid fa-chart-line'></i></a>
                     <a href="" class="home__social-icon"><i class='fa-solid fa-house'></i></a>
+                    
                 </div>
+                
             
                 <!-- Replace home_img with Globe -->
                 <div class="home__img" style="width: 100%; padding: 20px;">
@@ -139,6 +173,7 @@
                 <div class = "chart-container">
                     <canvas id="waterUsageChart"></canvas>
                 </div>
+                
             
                 <!-- Chart.js Script -->
                 <script>
@@ -275,7 +310,28 @@
         <script src="https://unpkg.com/scrollreveal"></script>
 
         <!--===== MAIN JS =====-->
-        <script src="assets/js/main.js"></script>
+        <script src="assets/js/mains.js"></script>
         
     </body>
+    <script>
+        function logout() {
+            // 🔒 Clear authentication data (adjust as per your authentication logic)
+            localStorage.removeItem("userToken");  // Remove JWT/token
+            sessionStorage.clear();  // Clear session storage
+
+            // 🔄 Redirect to Home page
+            window.location.href = "/";
+
+            // 🚫 Prevent Back Navigation
+            setTimeout(() => {
+                window.history.pushState(null, null, "/");
+                window.history.replaceState(null, null, "/");
+            }, 0);
+        }
+
+        // 🚫 Prevent users from going back after logout (Handles ALT + Left Arrow)
+        window.onpopstate = function () {
+            window.history.go(1);
+        };
+    </script>
 </html>
