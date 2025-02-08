@@ -314,8 +314,8 @@ app.get('/user_dashboard', async (req, res) => {
 app.get('/update_water_usage', async (req, res) => {
     const { apikey, new_usage } = req.query;
 
-    if (!apikey || !new_usage) {
-        return res.status(400).json({ error: 'Invalid request. API key and new usage are required.' });
+    if (!apikey) {
+        return res.status(400).json({ error: 'Invalid request. API key is required.' });
     }
 
     try {
@@ -332,6 +332,11 @@ app.get('/update_water_usage', async (req, res) => {
 
         // Get user's water limit from Firestore (updated by admin dashboard)
         const waterLimit = userData.water_limit || 'Not Set';
+
+        // If new_usage is 0, do NOT update, just return water limit
+        if (parseInt(new_usage, 10) === 0) {
+            return res.json({ waterLimit });
+        }
 
         // Get today's date
         const currentDate = new Date().toLocaleDateString('en-GB'); // "08/02/2025"
@@ -359,6 +364,7 @@ app.get('/update_water_usage', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 
 
