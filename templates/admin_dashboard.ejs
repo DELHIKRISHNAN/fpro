@@ -30,7 +30,7 @@
                 <table class="w-full text-left border border-gray-700 rounded-lg fade-in">
                     <thead class="bg-gray-800 text-gray-300">
                         <tr>
-                            <th class="p-3">Username</th>
+                            <th class="p-3">Consumer Number</th>
                             <th class="p-3">API Key</th>
                             <th class="p-3">Latest Water Usage</th>
                             <th class="p-3">Water Limit</th>
@@ -103,6 +103,17 @@
                 };
             }, 0);
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.querySelector("table"); // Select your table
+            const rows = table.querySelectorAll("tr"); // Get all rows
+
+            rows.forEach(row => {
+                const firstCell = row.querySelector("td"); // Check the first column (adjust index if needed)
+                if (firstCell && firstCell.textContent.trim().toLowerCase() === "admin") {
+                    row.remove(); // Remove the row
+                }
+            });
+        });
     </script>
 </body>
 </html>
