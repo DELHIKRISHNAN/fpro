@@ -187,54 +187,108 @@ canvas {
 }
 
 /*===== NAV =====*/
+/* Navbar */
 .nav {
   height: var(--header-height);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: var(--font-semi);
-  color: #007BFF;
+  padding: 0 20px;
+  background-color: white;
 }
+
+/* Align menu items and logout button to the right */
+.nav__menu {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Navbar Links */
+.nav__item {
+  margin: 0 15px;
+}
+
+.nav__link {
+  color: #000;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 5px 0;
+  position: relative;
+}
+
+.nav__link:hover::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #007BFF;
+}
+
+/* Logout Button */
+.logout-btn {
+  background-color: #007BFF; /* Blue */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+.logout-btn:hover {
+  background-color: #0056b3; /* Darker Blue */
+  transform: scale(1.05);
+}
+
+.logout-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive Menu for Mobile */
 @media screen and (max-width: 767px) {
   .nav__menu {
+    flex-direction: column;
     position: fixed;
     top: var(--header-height);
     right: -100%;
     width: 80%;
     height: 100%;
-    padding: 2rem;
-    background-color: var(--second-color);
+    background-color: rgb(255, 255, 255);
     transition: 0.5s;
-    color: #007BFF;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav__menu.show-menu {
+    right: 0;
+  }
+
+  .nav__list {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .logout-btn {
+    align-self: flex-start;
+    margin-top: 7px;
+    margin-right: 0px;
+  }
+
+  .nav__toggle {
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: block;
   }
 }
-.nav__item {
-  margin-bottom: var(--mb-4);
-}
-.nav__link {
-  position: relative;
-  color: #fff;
-}
-.nav__link:hover {
-  position: relative;
-}
-.nav__link:hover::after {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 0.18rem;
-  left: 0;
-  top: 2rem;
-  background-color: var(--first-color);
-}
-.nav__logo {
-  color: var(--second-color);
-}
-.nav__toggle {
-  color: var(--second-color);
-  font-size: 1.5rem;
-  cursor: pointer;
-}
+
+
 
 /*Active menu*/
 .active-link::after {

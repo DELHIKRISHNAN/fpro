@@ -11,32 +11,7 @@
         <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
 
         <title>User Dashboard</title>
-        <style>
-            /* 🔥 Logout Button with Animation & Hover Effect */
-            .logout-btn {
-                background: #4f4fd9;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 8px;
-                font-size: 1rem;
-                font-weight: bold;
-                cursor: pointer;
-                transition: all 0.3s ease-in-out;
-                box-shadow: 0 4px 8px rgba(100, 79, 217, 0.5);
-                
-            }
-    
-            .logout-btn:hover {
-                background: #392cc9;
-                transform: scale(1.05);
-                box-shadow: 0 6px 12px rgba(93, 79, 217, 0.7);
-            }
-    
-            .logout-btn:active {
-                transform: scale(0.98);
-            }
-        </style>
+        
     </head>
     <body>
         <!--===== HEADER =====-->
@@ -54,10 +29,11 @@
                         <li class="nav__item"><a href="#about" class="nav__link">Today</a></li>
                         <li class="nav__item"><a href="#skills" class="nav__link">Weekly</a></li>
                         <li class="nav__item"><a href="#work" class="nav__link">Monthly</a></li>
+                       
                         
                     </ul>
                 </div>
-                
+                <button onclick="logout()" class="logout-btn">Logout</button>
 
                 <div class="nav__toggle" id="nav-toggle">
                     <i class='bx bx-menu'></i>
