@@ -150,6 +150,7 @@ canvas {
   margin-top: var(--mb-2);
   margin-bottom: var(--mb-4);
   text-align: center;
+  padding-top: 10px;
 }
 .section-title::after {
   position: absolute;
@@ -164,13 +165,13 @@ canvas {
 }
 
 .section {
-  padding-top: 3rem;
-  padding-bottom: 2rem;
+  margin: 10px 0; /* Reduce top and bottom margin */
+  padding: 5px 0; /* Adjust padding if needed */
 }
 
 /*===== LAYOUT =====*/
 .bd-grid {
-  max-width: 1024px;
+  max-width: 90%;
   display: grid;
   margin-left: var(--mb-2);
   margin-right: var(--mb-2);
@@ -195,7 +196,7 @@ canvas {
   align-items: center;
   font-weight: var(--font-semi);
   padding: 0 20px;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
 }
 
 /* Align menu items and logout button to the right */
@@ -208,6 +209,11 @@ canvas {
 /* Navbar Links */
 .nav__item {
   margin: 0 15px;
+  margin-top: 1%;
+}
+.nav__logo{
+  font-size: 20px;
+  justify-content: var(--z-fixed);
 }
 
 .nav__link {
@@ -229,6 +235,13 @@ canvas {
 }
 
 /* Logout Button */
+.logout-container {
+  display: flex;
+  justify-content: flex-end; /* Aligns the button to the right */
+  padding: 10px; /* Add padding if needed */
+  width: 100%;
+}
+
 .logout-btn {
   background-color: #007BFF; /* Blue */
   color: white;
@@ -238,9 +251,10 @@ canvas {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-left: 20px;
   transition: all 0.3s ease-in-out;
+  margin-left: 10px;
 }
+
 
 .logout-btn:hover {
   background-color: #0056b3; /* Darker Blue */
@@ -288,6 +302,137 @@ canvas {
   }
 }
 
+.flex-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Align items vertically */
+  gap: 50px; /* Space between progress bar and gauge */
+  width: 100%;
+  margin: auto;
+  padding: 20px 0;
+}
+
+/* Ensure progress and gauge take equal space */
+.progress-container{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ensure gauge doesn't have unnecessary top/bottom space */
+
+.container {
+  display: flex; /* Enables side-by-side layout */
+  justify-content: space-between; /* Aligns progress bar to left & gauge to right */
+  align-items: center; /* Aligns them vertically */
+  width: 50%; /* Ensures the elements take most of the page width */
+  margin: auto; /* Adjusts spacing */
+}
+
+/* Reduce extra margins */
+.progress-container {
+  width: 55%; /* Ensures progress bar stays on the left */
+  text-align: left; /* Aligns text to the left */
+}
+
+  
+.progress-container {
+  width: 30%;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.progress-title {
+  font-size: 22px;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+
+.progress-bar {
+  width: 70%;
+  height: 40px; /* Increased height */
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+  margin-top: 100px;
+
+  
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 12px;
+  transition: width 1s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+/* Hover Effect */
+.progress-fill:hover {
+  filter: brightness(1.2);
+  transition: filter 0.3s ease-in-out;
+}
+
+#progress-text {
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  margin-top: 55px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+
+/* Bigger modern glassmorphism gauge */
+
+
+/* Gradient background for gauge */
+
+
+/* Bigger gauge needle */
+
+
+/* Bigger center dot */
+
+
+/* Larger pressure value display */
+
+
+/* Show tooltip on hover */
+.progress-bar:hover .tooltip,
+.gauge-needle:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Position tooltip for progress bar */
+.progress-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  transform: translate(-50%, -130%); /* Move tooltip above */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.progress-bar:hover .progress-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Position tooltip for gauge needle */
 
 
 /*Active menu*/
@@ -300,6 +445,97 @@ canvas {
   top: 2rem;
   background-color: var(--first-color);
 }
+canvas {
+  width: 300px;
+  height: 150px;
+}
+
+#valueDisplay {
+  font-size: 24px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.status {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.gauge-wrapper {
+  text-align: center;
+  margin: 20px auto;
+  font-family: 'Arial', sans-serif;
+}
+
+.gauge-container {
+  position: relative;
+  width: 250px;
+  height: 125px;
+  border-radius: 125px 125px 0 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #00d0ffea, #cfdef3);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.gauge-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(#4CAF50 0deg, #FFEB3B 120deg, #F44336 240deg, #ccc 360deg);
+  border-radius: 50% 50% 0 0;
+}
+
+.gauge-needle {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 5px;
+  height: 120px;
+  background: #333;
+  transform-origin: bottom;
+  transition: transform 0.5s ease-in-out;
+}
+
+.gauge-center {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.gauge-tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gauge-needle:hover .gauge-tooltip {
+  opacity: 1;
+}
+
+.pressure-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 15px;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 
 /*=== Show menu ===*/
 .show {
@@ -335,12 +571,7 @@ canvas {
 .home__social-icon:hover {
   color: var(--first-color);
 }
-.home__img {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 260px;
-}
+
 .home__blob {
   fill: var(--first-color);
 }
@@ -648,4 +879,101 @@ tr:nth-child(even) {
 
 tr:hover {
   background-color: #f1f1f1;
+}
+
+/* Button Styling */
+#showRequestForm {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#showRequestForm:hover {
+  background-color: #0056b3;
+}
+
+/* Form Container (Initially Hidden) */
+#extraWaterFormContainer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Form Styling */
+#extraWaterForm {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 300px;
+}
+
+#extraWaterForm h3 {
+  margin-bottom: 15px;
+}
+
+#extraWaterForm label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+#extraWaterForm input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Form Buttons */
+#extraWaterForm button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+#extraWaterForm button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+
+#extraWaterForm button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+#closeForm {
+  background-color: #dc3545;
+  color: white;
+}
+
+#closeForm:hover {
+  background-color: #c82333;
+}
+
+/* Message Styling */
+#requestMessage {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+}
+.home__img {
+  display: flex;
+  justify-content: flex-end; /* Aligns content to the right */
+  padding-right: 20px;
+  width: 100%;
 }

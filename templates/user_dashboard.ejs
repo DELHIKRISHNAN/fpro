@@ -1,296 +1,678 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Water Meter Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
 
-        <link rel="stylesheet" href="assets/css/styles.css">
+    body {
+      background-color: #b8dff7;
+      padding: 20px;
+    }
 
-        <!-- =====BOX ICONS===== -->
-        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
+    .dashboard-container {
+      display: flex;
+      gap: 20px;
+      height: 95vh; /* Full height layout */
+    }
 
-        <title>User Dashboard</title>
-        
-    </head>
-    <body>
-        <!--===== HEADER =====-->
-        <header class="l-header">
-            <nav class="nav bd-grid">
-                <div>
-                    <a href="#" class="nav__logo">User Dashboard</a>
-                    
-                    
+    /* Left Panel */
+    .left-panel {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 3 0%;
+    }
+
+    /* Right Panel Layout with Specific Heights */
+    .right-panel {
+      width: 30%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
+
+    /* Gauge (30% height) */
+    .gauge-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        gap: 5px;
+        height: 100%; /* Set fixed height similar to other cards */
+    }
+
+    .gauge-title {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .gauge-label {
+        font-size: 18px;
+        font-weight: bold;
+        color: #151715;
+        margin-top: 5px;
+    }
+
+    #gaugeChart {
+        width: 270px !important; /* Adjust width */
+        height: 250px !important; /* Adjust height */
+    }
+
+    #showRequestForm {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #showRequestForm:hover {
+      background-color: #0056b3;
+    }
+
+    /* Form Container (Initially Hidden) */
+    #extraWaterFormContainer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Form Styling */
+    #extraWaterForm {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    #extraWaterForm h3 {
+      margin-bottom: 15px;
+    }
+
+    #extraWaterForm label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    #extraWaterForm input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    /* Form Buttons */
+    #extraWaterForm button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+
+    #extraWaterForm button[type="submit"] {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #extraWaterForm button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    #closeForm {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    #closeForm:hover {
+      background-color: #c82333;
+    }
+
+    /* Message Styling */
+    #requestMessage {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+    .home__img {
+      display: flex;
+      justify-content: flex-end; /* Aligns content to the right */
+      padding-right: 20px;
+      width: 100%;
+    }
+
+    
+
+    /* Usage Table (50% height) */
+    .usage-table {
+      flex: 0 0 77%;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+    }
+
+    /* Progress Bar (20% height) */
+    .progress-bar {
+      flex: 0 0 21%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Card Styling */
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    /* Charts */
+    canvas {
+      width: 100%;
+      height: 220px;
+    }
+
+    /* Table Styling */
+    .usage-table {
+      overflow-y: auto;
+      max-height: 100%;
+    }
+
+    .usage-table::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .usage-table::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+
+    .usage-table::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 10px;
+    }
+
+    .usage-table::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #00CCFF;
+      color: rgb(0, 0, 0);
+      top: 0;
+      z-index: 1;
+    }
+
+    /* Progress Bar */
+    .progress {
+      width: 100%;
+      height: 25px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      text-align: center;
+      line-height: 25px;
+      color: white;
+      transition: width 0.5s;
+    }
+    
+
+    #progressText {
+      text-align: center;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    /* Speedometer Gauge */
+
+    .gauge-label {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    /* Navbar Styling */
+    /* Navbar Styling */
+    .l-header {
+      width: 100%;
+      background-color: #50aceb; /* Primary Blue */
+      padding: 15px 30px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      margin-bottom: 20px; /* Space below navbar */
+    }
+
+    /* Navbar Layout */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Logo */
+    .nav__logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Menu Container */
+    .nav__menus {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Logout & Action Buttons */
+    .logout-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .logout-btn {
+      background-color: #28a745; /* Green */
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      min-width: 140px; /* Ensure all buttons have the same width */
+      text-align: center;
+    }
+
+    /* Hover Effect */
+    .logout-btn:hover {
+      opacity: 0.8;
+    }
+
+    /* Button Colors */
+    .logout-container .logout-btn:nth-child(1) {
+      background-color: #008585; /* Request Extra Water */
+    }
+
+    .logout-container .logout-btn:nth-child(2) {
+      background-color: #AFCF6A; /* Pay My Bill */
+    }
+    .logout-container .logout-btn:nth-child(4) {
+      background-color: #DDAC57; /* Profile Management */
+    }
+    .logout-container .logout-btn:nth-child(3) {
+      background-color: #d74a49; /* Logout */
+    }
+
+
+    /* Responsive Menu */
+    .nav__toggle {
+      display: none;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logout-container {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .logout-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .nav__toggle {
+        display: block;
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+  <header class="l-header">
+    <nav class="nav bd-grid">
+        <div>
+            <a href="#" class="nav__logo">User Dashboard</a>
+            
+            
+        </div>
+
+        <div class="nav__menus" id="nav-menu">
+            <ul class="nav__list">
+
+                <!-- Add a hidden input to store the username -->
+                <input type="hidden" id="username" value="<%= user ? user.username : '' %>">
+            
+            </ul>
+            <div id="extraWaterFormContainer" class="hidden fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-900 bg-opacity-50">
+                <div class="bg-white p-6 rounded-md shadow-lg w-80">
+                    <h2 class="text-lg font-semibold mb-4">Request Extra Water</h2>
+                    <form id="extraWaterForm">
+                        <label for="liters" class="block text-sm font-medium text-gray-700">Liters:</label>
+                        <input type="number" id="liters" name="liters" required class="w-full p-2 border rounded-md mb-4">
+            
+                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+                            Submit Request
+                        </button>
+                        <button type="button" id="closeForm" class="ml-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">
+                            Cancel
+                        </button>
+                    </form>
                 </div>
-
-                <div class="nav__menu" id="nav-menu">
-                    <ul class="nav__list">
-                        <li class="nav__item"><a href="#home" class="nav__link active-link">Home</a></li>
-                        <li class="nav__item"><a href="#about" class="nav__link">Today</a></li>
-                        <li class="nav__item"><a href="#skills" class="nav__link">Weekly</a></li>
-                        <li class="nav__item"><a href="#work" class="nav__link">Monthly</a></li>
-                       
-                        
-                    </ul>
-                </div>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-
-                <div class="nav__toggle" id="nav-toggle">
-                    <i class='bx bx-menu'></i>
-                </div>
-                
-            </nav>
-            
-        </header>
-
-        <main class="l-main">
-            <!--===== HOME =====-->
-            <section class="home bd-grid" id="home">
-                <div class="home__data">
-                    <h1 class="home__title">Welcome,<br> <span class="home__title-color"><%= user.username %></span><br> Your Water Usage!</h1>
-                </div>
-            
-                <div class="home__social">
-                    <a href="" class="home__social-icon"><i class='fa-solid fa-droplet icon'></i></a>
-                    <a href="" class="home__social-icon"><i class='fa-solid fa-chart-line'></i></a>
-                    <a href="" class="home__social-icon"><i class='fa-solid fa-house'></i></a>
-                    
-                </div>
-                
-            
-                <!-- Replace home_img with Globe -->
-                <div class="home__img" style="width: 100%; padding: 20px;">
-                    <div id="chartdiv-globe" ></div>
-                </div>
-            </section>
-            
-            <!-- Resources for Globe -->
-            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-            
-            <script>
-                am5.ready(function() {
-                    // Create root element for the chart
-                    var root = am5.Root.new("chartdiv-globe");
-                    root.setThemes([am5themes_Animated.new(root)]);
-            
-                    // Create the map chart
-                    var chart = root.container.children.push(am5map.MapChart.new(root, {
-                        panX: "rotateX",
-                        panY: "rotateY",
-                        projection: am5map.geoOrthographic(),
-                        paddingBottom: 20,
-                        paddingTop: 20,
-                        paddingLeft: 20,
-                        paddingRight: 20
-                    }));
-            
-                    // Create main polygon series for countries
-                    var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
-                        geoJSON: am5geodata_worldLow
-                    }));
-            
-                    polygonSeries.mapPolygons.template.setAll({
-                        tooltipText: "{name}",
-                        toggleKey: "active",
-                        interactive: true
-                    });
-            
-                    polygonSeries.mapPolygons.template.states.create("hover", {
-                        fill: root.interfaceColors.get("primaryButtonHover")
-                    });
-            
-                    // Create background fill
-                    var backgroundSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
-                    backgroundSeries.mapPolygons.template.setAll({
-                        fill: root.interfaceColors.get("alternativeBackground"),
-                        fillOpacity: 0.1,
-                        strokeOpacity: 0
-                    });
-                    backgroundSeries.data.push({
-                        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
-                    });
-            
-                    // Add graticule lines
-                    var graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
-                    graticuleSeries.mapLines.template.setAll({ strokeOpacity: 0.1, stroke: root.interfaceColors.get("alternativeBackground") });
-            
-                    // Animate globe rotation
-                    chart.animate({
-                        key: "rotationX",
-                        from: 0,
-                        to: 360,
-                        duration: 30000,
-                        loops: Infinity
-                    });
-                    // Create root element
-                    var root = am5.Root.new("chartdiv");
-
-// Remove amCharts watermark (requires a valid license)
-                    root._logo.dispose();
-
-            
-                    // Make the chart and globe appear
-                    
-                }); // end am5.ready()
-            </script>
-            
-            
-
-            <!--===== ABOUT =====-->
-            <section class="about section " id="about">
-                <h2 class="section-title">Today's Water Usage</h2>
-
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                
-                <!-- HTML -->
-                <div class = "chart-container">
-                    <canvas id="waterUsageChart"></canvas>
-                </div>
-                
-            
-                <!-- Chart.js Script -->
-                <script>
-                    const labels = <%- JSON.stringify(todayLabels) %>;
-                    const data = <%- JSON.stringify(todayData) %>;
-
-                    if (labels.length === 0 || data.length === 0) {
-                        console.warn("⚠️ No data available for today's usage.");
-                    } else {
-                        const ctx = document.getElementById('waterUsageChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Water Usage (Liters)',
-                                    data: data,
-                                    borderColor: 'blue',
-                                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                                    fill: true,
-                                    tension: 0.3
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    x: { title: { display: true, text: 'Time Entries' }},
-                                    y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
-                                }
-                            }
-                        });
-                    }
-                </script>
-                
-            </section>
-
-            <!--===== SKILLS =====-->
-            <section class="skills section" id="skills">
-                <h2 class="section-title">Weekly Usage!</h2>
-
-                <!-- Include Chart.js Library -->
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                
-                <!-- HTML -->
-                <div class = "chart-container">
-                    <canvas id="barChart"></canvas>
-                </div>
-                
-                    <!-- Chart.js Script -->
-                    <script>
-                        const barLabels = <%- JSON.stringify(barLabels) %>;
-                        const barData = <%- JSON.stringify(barData) %>;
-
-                        if (barLabels.length === 0 || barData.length === 0) {
-                            console.warn("⚠️ No data available for the last 7 days.");
-                        } else {
-                            const ctx = document.getElementById('barChart').getContext('2d');
-                            new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: barLabels,
-                                    datasets: [{
-                                        label: 'Water Usage (Liters)',
-                                        data: barData,
-                                        backgroundColor: 'green'
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    scales: {
-                                        x: { title: { display: true, text: 'Date' }},
-                                        y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
-                                    }
-                                }
-                            });
-                        }
-                    </script>
-                </div>
-
-            </section>
-
-            <!--===== WORK =====-->
-            <section class="work section" id="work">
-                <h2 class="section-title">Water Usage History</h2>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Last Entry (Liters)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (tableData.length > 0) { %>
-                                <% tableData.forEach(entry => { %>
-                                    <tr>
-                                        <td><%= entry.date %></td>
-                                        <td><%= entry.last_entry %> L</td>
-                                    </tr>
-                                <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="2">No data available for the last 30 days.</td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-            
-                <script>
-                    // Sample data fetched from a database
-                    
-                </script>
-            </section>
-
-            <!--===== CONTACT =====-->
-            
-        </main>
-
-        <!--===== FOOTER =====-->
-        <footer class="footer">
-            <p class="footer__title">Water Tracker</p>
-            <div class="footer__social">
-                <a href="#" class="footer__icon"><i class='fa-solid fa-droplet icon' ></i></a>
-                <a href="#" class="footer__icon"><i class='fa-solid fa-chart-line' ></i></a>
-                <a href="#" class="footer__icon"><i class='fa-solid fa-house' ></i></a>
             </div>
-            <p class="footer__copy">&#169; Water Tracker. All rights reserved</p>
-        </footer>
-
-
-        <!--===== SCROLL REVEAL =====-->
-        <script src="https://unpkg.com/scrollreveal"></script>
-
-        <!--===== MAIN JS =====-->
-        <script src="assets/js/mains.js"></script>
+            
+        </div>
+        <div class="logout-container">
+            <a href="/request-extra-water?username=<%= user.username %>">
+                <button class="logout-btn">
+                    Request Extra Water
+                </button>
+            </a>  
+            <button onclick="logout()" class="logout-btn" style="background-color: #31029c;">Pay My Bill</button>
+            
+            <button onclick="window.location.href='/user_details?username=<%= user.username %>'" 
+              class="logout-btn" style="background-color: #31029c;">
+              Profile Management
+            </button>           
+            <button onclick="logout()" class="logout-btn" style="background-color: #d74a49;">Logout</button>
+        </div>
+        <div class="nav__toggle" id="nav-toggle">
+            <i class='bx bx-menu'></i>
+        </div>
         
-    </body>
-    <script>
-        function logout() {
+    </nav>
+    
+  </header>
+
+  <div class="dashboard-container">
+    <!-- Left Panel (70%): Line and Bar Graphs -->
+    <div class="left-panel">
+      <div class="card line-graph">
+        <h3>Today's Usage!</h3>
+        <canvas id="waterUsageChart"></canvas>
+      </div>
+      <div class="card bar-graph">
+        <h3>Last 7 Days Usage</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Panel (30%): Gauge, Table, Progress Bar -->
+    <div class="right-panel">
+        
+        <div class="card gauge-card">
+            <h2 class="gauge-title">Pressure Monitor</h2>
+            <canvas id="gaugeChart"></canvas>
+            <div class="gauge-label" id="pressureValue">0 Bar</div>
+        </div>
+        <div class="card progress-bar">
+            <div class="progress-container">
+                <h2 class="section-title" style="margin-bottom: 40px;">Today's Water Usage</h2>
+                <div class="progress">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="progressText"></p>
+            </div>
+        </div>
+      <div class="card usage-table">
+        <h3>Water Usage History (30 Days)</h3>
+        <table>
+          <thead>
+              <tr>
+                  <th>Date</th>
+                  <th>Last Entry (Liters)</th>
+              </tr>
+          </thead>
+          <tbody>
+              <% if (tableData.length > 0) { %>
+                  <% tableData.forEach(entry => { %>
+                      <tr>
+                          <td><%= entry.date %></td>
+                          <td><%= entry.last_entry %> L</td>
+                      </tr>
+                  <% }) %>
+              <% } else { %>
+                  <tr>
+                      <td colspan="2">No data available for the last 30 days.</td>
+                  </tr>
+              <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Line Chart (Daily Usage)
+    const labels = <%- JSON.stringify(todayLabels) %>;
+    const data = <%- JSON.stringify(todayData) %>;
+    if (labels.length === 0 || data.length === 0) {
+        console.warn("⚠️ No data available for today's usage.");
+    } else {
+        const ctx = document.getElementById('waterUsageChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Water Usage (Liters)',
+                    data: data,
+                    borderColor: '#74acdc',
+                    backgroundColor: 'rgba(184, 223, 247, 0.5)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Time Entries' }},
+                    y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // Bar Chart (Last 7 Days Usage)
+    const barLabels = <%- JSON.stringify(barLabels) %>;
+    const barData = <%- JSON.stringify(barData) %>;
+    if (barLabels.length === 0 || barData.length === 0) {
+        console.warn("⚠️ No data available for the last 7 days.");
+    } else {
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    label: 'Water Usage (Liters)',
+                    data: barData,
+                    backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',   // Red
+                    'rgba(54, 162, 235, 0.7)',  // Blue
+                    'rgba(255, 206, 86, 0.7)',  // Yellow
+                    'rgba(75, 192, 192, 0.7)',  // Teal
+                    'rgba(153, 102, 255, 0.7)', // Purple
+                    'rgba(255, 159, 64, 0.7)',  // Orange
+                    'rgba(0, 128, 0, 0.7)'      // Green
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' }},
+                    y: { title: { display: true, text: 'Usage (Liters)' }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // Table (30 Days History)
+    
+
+    // Progress Bar
+    const latestUsage = <%= latestUsage %>;
+    const waterLimit = <%= waterLimit %>;
+
+    // Update Progress Bar
+    function updateProgressBar() {
+        const progressFill = document.getElementById("progressFill");
+        const progressText = document.getElementById("progressText");
+        const percentage = Math.min((latestUsage / waterLimit) * 100, 100);
+
+        progressFill.style.width = percentage + "%";
+        progressText.innerText = `Usage: ${latestUsage} / ${waterLimit} Liters`;
+
+        // Dynamic Color Change
+        if (percentage > 75) {
+            progressFill.style.backgroundColor = "#f44336"; // Red
+        } else if (percentage > 50) {
+            progressFill.style.backgroundColor = "#ff9800"; // Orange
+        } else if (percentage > 25) {
+            progressFill.style.backgroundColor = "#ffeb3b"; // Yellow
+        } else {
+            progressFill.style.backgroundColor = "#4caf50"; // Green
+        }
+
+        if (percentage >= 100) {
+            alert("⚠️ Your daily water limit has been reached!");
+        }
+    }
+
+    // Update Speedometer for Pressure Monitor
+    function updateGauge(pressure) {
+        const ctx = document.getElementById('gaugeChart').getContext('2d');
+
+        // Color transition from green (low pressure) to red (high pressure)
+        const colorGradient = [
+            'rgba(76, 175, 80, 1)',   // Green (0-2)
+            'rgba(139, 195, 74, 1)',  // Light Green (3-4)
+            'rgba(255, 235, 59, 1)',  // Yellow (5-6)
+            'rgba(255, 152, 0, 1)',   // Orange (7-8)
+            'rgba(244, 67, 54, 1)'    // Red (9-10)
+        ];
+        
+        // Select color based on pressure range
+        let gaugeColor;
+        if (pressure <= 2) gaugeColor = colorGradient[0];
+        else if (pressure <= 4) gaugeColor = colorGradient[1];
+        else if (pressure <= 6) gaugeColor = colorGradient[2];
+        else if (pressure <= 8) gaugeColor = colorGradient[3];
+        else gaugeColor = colorGradient[4];
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pressure', 'Remaining'],
+                datasets: [{
+                    data: [pressure, 10 - pressure], 
+                    backgroundColor: [gaugeColor, '#e0e0e0'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                rotation: -90,  // Start from the bottom
+                circumference: 180, // Only show half-circle
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `Pressure: ${tooltipItem.raw} Bar`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        document.getElementById("pressureValue").innerText = `${pressure} Bar`;
+    }
+
+    function updateSpeedometer() {
+        let pressure = <%= user.pressure %>;
+        updateGauge(pressure);
+    }
+
+    updateSpeedometer();
+    updateProgressBar();
+    setInterval(updateSpeedometer, 2000); // Update pressure every 2 seconds
+    function logout() {
             // 🔒 Clear authentication data (adjust as per your authentication logic)
             localStorage.removeItem("userToken");  // Remove JWT/token
             sessionStorage.clear();  // Clear session storage
@@ -303,11 +685,124 @@
                 window.history.pushState(null, null, "/");
                 window.history.replaceState(null, null, "/");
             }, 0);
-        }
+      }
 
         // 🚫 Prevent users from going back after logout (Handles ALT + Left Arrow)
-        window.onpopstate = function () {
-            window.history.go(1);
-        };
-    </script>
+      window.onpopstate = function () {
+          window.history.go(1);
+      };
+      /*===== MENU SHOW =====*/ 
+const showMenu = (toggleId, navId) =>{
+    const toggle = document.getElementById(toggleId),
+    nav = document.getElementById(navId)
+
+    if(toggle && nav){
+        toggle.addEventListener('click', ()=>{
+            nav.classList.toggle('show')
+        })
+    }
+}
+showMenu('nav-toggle','nav-menu')
+
+/*==================== REMOVE MENU MOBILE ====================*/
+const navLink = document.querySelectorAll('.nav__link')
+
+function linkAction(){
+    const navMenu = document.getElementById('nav-menu')
+    // When we click on each nav__link, we remove the show-menu class
+    navMenu.classList.remove('show')
+}
+navLink.forEach(n => n.addEventListener('click', linkAction))
+
+/*==================== SCROLL SECTIONS ACTIVE LINK ====================*/
+const sections = document.querySelectorAll('section[id]')
+
+const scrollActive = () =>{
+    const scrollDown = window.scrollY
+
+  sections.forEach(current =>{
+        const sectionHeight = current.offsetHeight,
+              sectionTop = current.offsetTop - 58,
+              sectionId = current.getAttribute('id'),
+              sectionsClass = document.querySelector('.nav__menu a[href*=' + sectionId + ']')
+        
+        if(scrollDown > sectionTop && scrollDown <= sectionTop + sectionHeight){
+            sectionsClass.classList.add('active-link')
+        }else{
+            sectionsClass.classList.remove('active-link')
+        }                                                    
+    })
+}
+window.addEventListener('scroll', scrollActive)
+
+/*===== SCROLL REVEAL ANIMATION =====*/
+const sr = ScrollReveal({
+    origin: 'top',
+    distance: '60px',
+    duration: 2000,
+    delay: 200,
+//     reset: true
+});
+
+sr.reveal('.home__data, .about__img, .skills__subtitle, .skills__text',{}); 
+sr.reveal('.home__img, .about__subtitle, .about__text, .skills__img',{delay: 400}); 
+sr.reveal('.home__social-icon',{ interval: 200}); 
+sr.reveal('.skills__data, .work__img, .contact__input',{interval: 200}); 
+// Toggle Navbar Menu in Mobile View
+const navMenu = document.getElementById('nav-menu');
+const navToggle = document.getElementById('nav-toggle');
+
+navToggle.addEventListener('click', () => {
+  navMenu.classList.toggle('show-menu');
+});
+
+// Function to handle logout (example placeholder)
+
+document.addEventListener("DOMContentLoaded", function () {
+    const requestBtn = document.getElementById("requestWaterBtn");
+    const formContainer = document.getElementById("extraWaterFormContainer");
+    const closeFormBtn = document.getElementById("closeForm");
+    const extraWaterForm = document.getElementById("extraWaterForm");
+
+    // Show form when clicking the "Request Extra Water" button
+    requestBtn.addEventListener("click", () => {
+        formContainer.classList.remove("hidden");
+    });
+
+    // Hide form when clicking the "Cancel" button
+    closeFormBtn.addEventListener("click", () => {
+        formContainer.classList.add("hidden");
+    });
+
+    // Handle form submission
+    extraWaterForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevent default form submission
+        const liters = document.getElementById("liters").value;
+
+        try {
+            const response = await fetch("/request-extra-water", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ liters }),
+            });
+
+            if (response.ok) {
+                alert("The request for extra water is submitted successfully!");
+                formContainer.classList.add("hidden"); // Close form
+                extraWaterForm.reset(); // Clear input field
+            } else {
+                alert("Failed to submit request. Try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong. Try again later.");
+        }
+    });
+});
+
+
+  </script>
+</body>
 </html>

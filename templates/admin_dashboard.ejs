@@ -30,21 +30,28 @@
                 <table class="w-full text-left border border-gray-700 rounded-lg fade-in">
                     <thead class="bg-gray-800 text-gray-300">
                         <tr>
-                            <th class="p-3">Consumer Number</th>
-                            <th class="p-3">API Key</th>
-                            <th class="p-3">Latest Water Usage</th>
-                            <th class="p-3">Water Limit</th>
-                            <th class="p-3">Actions</th>
+                            <th class="p-3" style="text-align: center;">Username</th>
+                            <th class="p-3" style="text-align: center;">API Key</th>
+                            <th class="p-3" style="text-align: center;">Phone Number</th>
+                            <th class="p-3" style="text-align: center;">Consumer Number</th>
+                            <th class="p-3" style="text-align: center;">Address</th>
+                            <th class="p-3" style="text-align: center;">Latest Water Usage</th>
+                            <th class="p-3" style="text-align: center;">Water Limit</th>
+                            <th class="p-3" style="text-align: center;">Actions</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
                         <% users.forEach(function(user, index) { %>
                             <tr class="bg-gray-700 hover:bg-gray-600 transition transform hover:scale-105 fade-in">
-                                <td class="p-3"><%= user.username %></td>
-                                <td class="p-3"><%= user.api_key %></td>
-                                <td class="p-3"><%= user.latest_usage %> L</td>
-                                <td class="p-3" id="limit-<%= index %>"><%= user.water_limit %> L</td>
-                                <td class="p-3">
+                                <td class="p-3" style="text-align: center;"><%= user.username %></td>
+                                <td class="p-3" style="text-align: center;"><%= user.api_key %></td>
+                                <td class="p-3" style="text-align: center;"><%= user.phone %></td>
+                                <td class="p-3" style="text-align: center;"><%= user.consumer_number %></td>
+                                <td class="p-3" style="text-align: center;"><%= user.address %></td>
+                                <td class="p-3" style="text-align: center;"><%= user.latest_usage %> L</td>
+                                <td class="p-3" id="limit-<%= index %>" style="text-align: center;"><%= user.water_limit %> L</td>
+                                <td class="p-3" style="text-align: center;">
                                     <button onclick="showUpdate(<%= index %>)" 
                                         class="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600 transition transform hover:scale-110">
                                         Edit
@@ -61,6 +68,41 @@
                                 </td>
                             </tr>
                         <% }); %>
+                    </tbody>
+                </table>
+                <h2 class="text-lg font-bold text-center mt-6">Extra Water Requests</h2>
+                <table class="w-full border-collapse border border-gray-300 shadow-md rounded-lg">
+                    <thead>
+                        <tr class="bg-blue-500 text-white">
+                            <th class="border border-gray-300 px-4 py-2">Username</th>
+                            <th class="border border-gray-300 px-4 py-2">Last Requested Water (Liters)</th>
+                            <th class="border border-gray-300 px-4 py-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr id="row-<%= user.username %>"class="text-center">
+                                <td class="border border-gray-300 px-4 py-2"><%= user.username %></td>
+                                
+                                <td class="border border-gray-300 px-4 py-2">
+                                    <% if (user.extra_water_requests && user.extra_water_requests.length > 0) { %>
+                                        <%= user.extra_water_requests[user.extra_water_requests.length - 1].amount %> Liters
+                                    <% } else { %>
+                                        No Requests
+                                    <% } %>
+                                </td>
+                
+                                <td class="border border-gray-300 px-4 py-2">
+                                    <% if (user.extra_water_requests && user.extra_water_requests.length > 0) { %>
+                                        <button onclick="addExtraWater('<%= user.username %>', <%= user.extra_water_requests[user.extra_water_requests.length - 1].amount %>)" class="bg-blue-500 text-white px-3 py-1 rounded">
+                                            Add
+                                        </button>
+                                    <% } else { %>
+                                        <span class="text-gray-400">No Request</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
                     </tbody>
                 </table>
             </div>
@@ -114,6 +156,65 @@
                 }
             });
         });
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.add-water-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const username = event.target.getAttribute('data-username');
+                    const amount = event.target.getAttribute('data-amount');
+
+                    if (!username || !amount) {
+                        alert("❌ Error: Missing required data!");
+                        return;
+                    }
+
+                    console.log("📌 Adding Extra Water - User:", username, "Amount:", amount);
+
+                    try {
+                        const response = await fetch('/admin_dashboard', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, amount })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            alert("✅ Water limit updated!");
+                            location.reload(); // Refresh dashboard
+                        } else {
+                            alert("❌ Error: " + data.message);
+                        }
+                    } catch (error) {
+                        console.error("❌ Error updating water:", error);
+                    }
+                });
+            });
+        });
+        function addExtraWater(username, amount) {
+            fetch('/admin_dashboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, amount })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Water limit updated successfully!");
+                    location.reload(); // Refresh the page to update the table
+                } else {
+                    alert("❌ Error: " + data.error);
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    // Remove the row dynamically
+                    const row = document.getElementById(`row-${username}`);
+                    if (row) row.remove();
+                } else {
+                    console.error("Removing the row" + data.error);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
     </script>
 </body>
 </html>

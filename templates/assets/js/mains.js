@@ -68,4 +68,47 @@ function logout() {
   alert('Logged out');
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const requestBtn = document.getElementById("requestWaterBtn");
+    const formContainer = document.getElementById("extraWaterFormContainer");
+    const closeFormBtn = document.getElementById("closeForm");
+    const extraWaterForm = document.getElementById("extraWaterForm");
+
+    // Show form when clicking the "Request Extra Water" button
+    requestBtn.addEventListener("click", () => {
+        formContainer.classList.remove("hidden");
+    });
+
+    // Hide form when clicking the "Cancel" button
+    closeFormBtn.addEventListener("click", () => {
+        formContainer.classList.add("hidden");
+    });
+
+    // Handle form submission
+    extraWaterForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevent default form submission
+        const liters = document.getElementById("liters").value;
+
+        try {
+            const response = await fetch("/request-extra-water", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ liters }),
+            });
+
+            if (response.ok) {
+                alert("The request for extra water is submitted successfully!");
+                formContainer.classList.add("hidden"); // Close form
+                extraWaterForm.reset(); // Clear input field
+            } else {
+                alert("Failed to submit request. Try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong. Try again later.");
+        }
+    });
+});
 

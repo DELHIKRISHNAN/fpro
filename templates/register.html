@@ -8,14 +8,15 @@
         /* General Styles */
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #81a3d3, #1c6ea4);
+            background: linear-gradient(135deg, #003366, #0055A4);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
-            overflow: hidden;
+            overflow-y: auto;
         }
+
         .background {
             position: absolute;
             top: 0;
@@ -26,188 +27,281 @@
             overflow: hidden;
         }
 
-        .wave {
-            position: absolute;
-            bottom: 0;
-            width: 200%;
-            height: 12%;
-            background: rgba(2, 73, 155, 0.4);
-            border-radius: 50%;
-            animation: waveMove 6s infinite linear;
-        }
-
-        .wave:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .wave:nth-child(2) {
-            bottom: 5%;
-            background: rgba(74, 144, 226, 0.6);
-            animation-delay: 2s;
-        }
-
-        .wave:nth-child(3) {
-            bottom: 10%;
-            background: rgba(74, 144, 226, 0.8);
-            animation-delay: 4s;
-        }
-
-        @keyframes waveMove {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
         .container {
             background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            width: 500px;
-            max-width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(6, 131, 255, 0.2);
+            width: 600px;
+            max-width: 95%;
             overflow: hidden;
             transition: all 0.5s ease;
+            padding: 40px;
+            position: relative;
         }
 
         .form-container {
-            padding: 30px;
+            width: 100%;
             position: relative;
         }
 
         h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: #333;
-            font-size: 1.8em;
+            color: #222;
+            font-size: 1.9em;
             font-weight: bold;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #444;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 14px;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            font-size: 14px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 15px;
+            transition: 0.3s ease;
+            background: #f7f7f7;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+            border-color: #0055A4;
+            box-shadow: 0 0 10px rgba(0, 85, 164, 0.3);
+            background: white;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            background: #4a90e2;
+            padding: 14px;
+            background: #0055A4;
             color: white;
             font-size: 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
+            transition: 0.3s;
         }
 
         .btn:hover {
-            background: #357abd;
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
+            background: #003366;
         }
 
         .toggle-link {
             text-align: center;
             margin-top: 20px;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .toggle-link a {
-            color: #4a90e2;
+            color: #0055A4;
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: 0.3s;
         }
 
         .toggle-link a:hover {
-            color: #357abd;
             text-decoration: underline;
         }
 
-        /* Smooth Slide Transition */
         .hidden {
             display: none;
         }
 
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 30px;
             }
         }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-        /* Add shadow on hover */
-        .form-container:hover {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top left, #02f7ff, #0077ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 60%;
+            max-width: 800px;
+            height: 80vh;
+            padding: 40px;
+            background: #1e00a576;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+        }
+        .form-container {
+            width: 600px; /* Same as register form */
+            max-width: 95%;
+            background:#0057ba;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            position: relative;
+            text-align: center;
+            margin: auto;
+        }
+
+        h2 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            color: #b0bec5;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 16px;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #00c3ff;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.6);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: scale(1.05);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #b0bec5;
+        }
+
+        .toggle-link a {
+            color: #00c3ff;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
-    <div class="background">
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="wave"></div>
-    </div>
-    <div class="container fade-in">
-        <!-- Register Form -->
-        <div class="form-container" id="register-form">
-            <h2>Register</h2>
-            <form method="post" action="/register">
-                <div class="form-group">
-                    <label for="reg-username">Username</label>
-                    <input type="text" id="reg-username" name="username" placeholder="Choose a new username" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg-password">Password</label>
-                    <input type="password" id="reg-password" name="password" placeholder="Choose a new password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm your password" required>
-                </div>
-                <button type="submit" class="btn">Register</button>
-            </form>
-            <div class="toggle-link">
-                Already have an account? <a onclick="toggleForm('login')">Login</a>
+    <div class="container" id="register-form">
+        <h2>Create an Account</h2>
+        <form method="post" action="/register">
+            <div class="form-group">
+                <label for="reg-name">Full Name</label>
+                <input type="text" id="reg-name" name="name" placeholder="Enter your full name" required>
             </div>
+            <div class="form-group">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" name="username" placeholder="Choose a username" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-consumer">Consumer Number</label>
+                <input type="text" id="reg-consumer" name="consumer_number" placeholder="Enter your consumer number" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-email">Email</label>
+                <input type="email" id="reg-email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-address">Address</label>
+                <textarea id="reg-address" name="address" placeholder="Enter your address" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" name="password" placeholder="Choose a password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm your password" required>
+            </div>
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <div class="toggle-link">
+            Already have an account? <a onclick="toggleForm('login')">Login</a>
         </div>
+    </div>
 
         <!-- Login Form -->
         <div class="form-container hidden" id="login-form">
@@ -253,7 +347,7 @@
                 const registerForm = document.getElementById('register-form');
                 const loginForm = document.getElementById('login-form');
                 const adminLoginForm = document.getElementById('admin-login-form');
-        
+
                 if (formType === 'login') {
                     loginForm.classList.remove('hidden');
                     registerForm.classList.add('hidden');
@@ -268,6 +362,7 @@
                     registerForm.classList.add('hidden');
                 }
             }
+
         </script>
 </body>
 </html>

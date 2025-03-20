@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Extra Water</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-gray-800 shadow-lg rounded-2xl p-8 space-y-6">
+    <h2 class="text-3xl font-bold text-center text-indigo-400">Request Extra Water</h2>
+    
+    <!-- Success Message Popup -->
+    <div id="successMessage" class="hidden bg-green-500 text-white p-3 rounded-lg text-center mb-4">
+      Extra water request submitted successfully!
+    </div>
+
+    <form id="waterRequestForm" class="space-y-5">
+      <input type="hidden" id="username" value="<%= username %>">
+      <label class="block text-lg">Enter Extra Water (liters):</label>
+      <input type="number" id="extraWater" name="extraWater" placeholder="Enter liters..." required
+        class="w-full p-4 text-lg border rounded-lg bg-gray-700 border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <div class="flex justify-between space-x-4">
+        <button type="submit" class="w-1/2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">
+          Submit
+        </button>
+        <button type="button" onclick="window.location.href='/user_dashboard?username=<%= username %>'"
+          class="w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">
+          Back to Dashboard
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('waterRequestForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const extraWater = document.getElementById('extraWater').value.trim();
+
+      if (!extraWater) {
+        alert("Please enter the extra water amount.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/request-extra-water?username=${username}&extraWater=${extraWater}`, {
+          method: 'GET'
+        });
+
+        if (response.ok) {
+          document.body.classList.add('bg-green-600');
+          document.getElementById('waterRequestForm').style.display = 'none';
+          document.getElementById('successMessage').classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = `/user_dashboard?username=${encodeURIComponent(username)}&from=request-extra-water`;
+          }, 3000);
+        } else {
+          alert('Failed to submit extra water request. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

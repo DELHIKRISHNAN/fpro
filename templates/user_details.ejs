@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2); /* Light blue gradient */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.3); /* Lighter bubbles */
+            border-radius: 50%;
+            animation: floatBubble 18s infinite linear;
+            backdrop-filter: blur(8px); /* Less blur for light theme */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        .bubble:nth-child(1) { top: 10%; left: 10%; animation-duration: 20s; width: 70px; height: 70px; }
+        .bubble:nth-child(2) { top: 60%; left: 80%; animation-duration: 24s; width: 40px; height: 40px; }
+        .bubble:nth-child(3) { top: 80%; left: 30%; animation-duration: 22s; width: 60px; height: 60px; }
+        .bubble:nth-child(4) { top: 30%; left: 90%; animation-duration: 27s; width: 50px; height: 50px; }
+        .bubble:nth-child(5) { top: 5%; left: 50%; animation-duration: 21s; width: 80px; height: 80px; }
+        .bubble:nth-child(6) { top: 70%; left: 15%; animation-duration: 25s; width: 35px; height: 35px; }
+        .bubble:nth-child(7) { top: 25%; left: 60%; animation-duration: 23s; width: 70px; height: 70px; }
+        .bubble:nth-child(8) { top: 85%; left: 70%; animation-duration: 26s; width: 55px; height: 55px; }
+
+        @keyframes floatBubble {
+            0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+            50% { transform: translateY(-30px) translateX(20px); opacity: 1; }
+            100% { transform: translateY(0) translateX(0); opacity: 0.8; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+            backdrop-filter: blur(15px); /* Less blur */
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Lighter shadow */
+            width: 800px;
+            color: #333; /* Darker text for contrast */
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 1px;
+            color: #03a9f4; /* Light blue accent */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 16px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+            font-size: 18px;
+        }
+
+        th {
+            font-weight: 500;
+            color: #03a9f4;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #00bcd4; /* Cyan highlight */
+        }
+
+        .btn {
+            display: block;
+            margin-top: 30px;
+            padding: 16px 30px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #03a9f4, #29b6f6); /* Light blue button */
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 20px rgba(3, 169, 244, 0.2); /* Lighter button shadow */
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(3, 169, 244, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="container">
+        <h1>User Details</h1>
+        <table>
+            <tr>
+                <th>Username</th>
+                <td><span class="highlight"><%= user.username %></span></td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td><%= user.email %></td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td><%= user.phone %></td>
+            </tr>
+            <tr>
+                <th>Consumer Number</th>
+                <td><%= user.consumer_number %></td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td><%= user.address %></td>
+            </tr>
+            <tr>
+                <th>Today's Water Usage</th>
+                <td><span class="highlight"><%= lastWaterUsage %></span> liters</td>
+            </tr>
+            <tr>
+                <th>Water Limit</th>
+                <td><%= user.water_limit %> liters</td>
+            </tr>
+        </table>
+        <a href="/user_dashboard?username=<%= user.username %>" class="btn">Go to Dashboard</a>
+    </div>
+</body>
+</html>

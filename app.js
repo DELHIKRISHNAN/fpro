@@ -141,55 +141,130 @@ app.post('/admin_login', async (req, res) => {
 
 
 // Register route
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
+app.post("/register", async (req, res) => {
+    try {
+        const { name, username, phone, consumer_number, email, address, password } = req.body;
 
-    const userSnapshot = await db.collection('users').where('username', '==', username).get();
-    if (!userSnapshot.empty) {
-        return res.status(400).send('Username already exists!');
+        // Check if username already exists
+        const userSnapshot = await db.collection("users").where("username", "==", username).get();
+        if (!userSnapshot.empty) {
+            return res.status(400).send("Username already exists!");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const apiKey = generateApiKey();
+
+        // Add user to Firestore
+        await db.collection("users").add({
+            name,
+            username,
+            phone,
+            consumer_number,
+            email,
+            address,
+            password: hashedPassword,
+            api_key: apiKey,
+            water_usage: [{ date: DateTime.now().toISODate(), usage: 0 }],
+            usage_history: [],
+            water_limit: 0,
+            createdAt: admin.firestore.Timestamp.now(),
+        });
+
+        res.redirect(`/user_dashboard?username=${username}`);
+    } catch (error) {
+        console.error("Error registering user:", error);
+        res.status(500).send("Internal Server Error");
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const apiKey = generateApiKey();
-
-    await db.collection('users').add({
-        username,
-        password: hashedPassword,
-        api_key: apiKey,
-        water_usage: [{ date: DateTime.now().toISODate(), usage: 0 }],
-        usage_history: [],
-        water_limit: 100
-    });
-
-    res.redirect(`/user_dashboard?username=${username}`);
 });
 
 // Admin dashboard
+// ✅ Add this GET route to render the admin dashboard
 app.get('/admin_dashboard', async (req, res) => {
-    const usersSnapshot = await db.collection('users').get();
-    const userData = [];
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        const users = usersSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const waterUsageArray = data.water_usage || [];
 
-    usersSnapshot.forEach((userDoc) => {
-        const user = userDoc.data();
 
-        const latestEntry = user.water_usage && user.water_usage.length > 0
-            ? user.water_usage[user.water_usage.length - 1]
+            const latestEntry = data.water_usage && data.water_usage.length > 0
+            ? data.water_usage[data.water_usage.length - 1]
             : { date: 'N/A', usage: [0] };
+        
+            // Extract only the last entered usage value
+            const latestUsage = latestEntry.usage[latestEntry.usage.length - 1];
+        
+            return {
+                username: doc.id,
+                ...data,
+                latest_usage: latestUsage  // Ensure this is a single value, not an array
+            };
+        });     
 
-        const latestUsage = latestEntry.usage[latestEntry.usage.length - 1];
-        const apiKey = user.api_key || 'N/A';
-        const waterLimit = user.water_limit || 100; // Default to 100 if not set
+        
 
-        userData.push({
-            username: user.username,
-            api_key: apiKey,
-            latest_usage: latestUsage,
-            water_limit: waterLimit, // Add water limit to the user data
-        });
-    });
-
-    res.render('admin_dashboard', { users: userData });
+        res.render('admin_dashboard', { users }); // Ensure 'admin_dashboard.ejs' exists in the views folder
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Internal Server Error");
+    }
 });
+
+// ✅ POST request to update water limit
+app.post('/admin_dashboard', async (req, res) => {
+    try {
+        const { username, amount } = req.body;
+        console.log('username = ', username)
+        console.log('amount = ', amount)
+
+        if (!username || !amount) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        // Query Firestore to find the document where username matches
+        const usersRef = db.collection('users');
+        const querySnapshot = await usersRef.where('username', '==', username).get();
+
+        if (querySnapshot.empty) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        let userDocId;
+        let userData;
+        querySnapshot.forEach((doc) => {
+            userDocId = doc.id; // Get the document ID
+            userData = doc.data(); // Get user data
+        });
+
+        // Reference to the user's document
+        const userDocRef = db.collection('users').doc(userDocId);
+
+        // Increment the existing limit by the received amount
+        await userDocRef.update({
+            water_limit: admin.firestore.FieldValue.increment(amount)
+        });
+
+        // Remove the last processed extra water request
+        if (userData.extra_water_requests && userData.extra_water_requests.length > 0) {
+            const updatedRequests = [...userData.extra_water_requests];
+            updatedRequests.pop(); // Remove the last request
+
+            await userDocRef.update({ extra_water_requests: updatedRequests });
+        }
+
+        console.log(`Added ${amount} to user ${username}'s limit and removed last request`);
+        res.status(200).json({ message: `Limit increased by ${amount} successfully`, success: true });
+
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+
+
 
 
 
@@ -240,9 +315,8 @@ app.get('/get_water_limit', async (req, res) => {
 
 // User dashboard
 app.get('/user_dashboard', async (req, res) => {
-    const { username } = req.query;
+    const { username, from } = req.query;
     console.log(`Fetching data for username: ${username}`);
-
     const userSnapshot = await db.collection('users').where('username', '==', username).get();
 
     if (userSnapshot.empty) {
@@ -252,59 +326,97 @@ app.get('/user_dashboard', async (req, res) => {
 
     const user = userSnapshot.docs[0].data();
     const waterUsage = user.water_usage || [];
-
     console.log(`Fetched water_usage: ${JSON.stringify(waterUsage, null, 2)}`);
 
-    const todayDate = new Date().toLocaleDateString('en-GB'); // "30/01/2025"
+    const todayDate = new Date().toLocaleDateString('en-GB');
     console.log(`Today's Date: ${todayDate}`);
 
-    // 📌 **Line Graph Data (Today's Usage)**
     let todayLabels = [];
     let todayData = [];
-
     const todayEntry = waterUsage.find(entry => entry.date === todayDate);
     if (todayEntry && Array.isArray(todayEntry.usage)) {
         todayLabels = todayEntry.usage.map((_, index) => `Entry ${index + 1}`);
         todayData = todayEntry.usage;
     }
-
     console.log(`📊 Line Graph Data: ${JSON.stringify(todayData)}`);
 
-    // 📌 **Bar Graph Data (Last 7 Days' Last Entries)**
     let barLabels = [];
     let barData = [];
-
     const last7Days = waterUsage.slice(-7);
     last7Days.forEach(entry => {
         if (entry.usage.length > 0) {
             barLabels.push(entry.date);
-            barData.push(entry.usage[entry.usage.length - 1]); // Last entry of the day
+            barData.push(entry.usage[entry.usage.length - 1]);
         }
     });
-
     console.log(`📊 Bar Graph Data: ${JSON.stringify(barData)}`);
 
-    // 📌 **Table Data (Last 30 Days' Last Entries)**
     let tableData = [];
     const last30Days = waterUsage.slice(-30);
     last30Days.forEach(entry => {
         if (entry.usage.length > 0) {
             tableData.push({
                 date: entry.date,
-                last_entry: entry.usage[entry.usage.length - 1] // Last entry of the day
+                last_entry: entry.usage[entry.usage.length - 1]
             });
         }
     });
-
     console.log(`📄 Table Data: ${JSON.stringify(tableData)}`);
+
+    const latestUsage = todayEntry && todayEntry.usage.length > 0 ? todayEntry.usage[todayEntry.usage.length - 1] : 0;
+    const limitDoc = await db.collection('config').doc('water_limit').get();
+    const waterLimit = user.water_limit ?? "not set";
+    console.log(`🚰 Latest Usage: ${latestUsage}, Water Limit: ${waterLimit}`);
+
+    // ✅ Added functionality for redirect from '/request-extra-water'
+    if (from === 'request-extra-water') {
+        console.log('🔄 Redirected from extra water request page');
+    }
 
     return res.render('user_dashboard', {
         user,
         todayLabels, todayData,
         barLabels, barData,
-        tableData
+        tableData,
+        latestUsage, waterLimit,
+        from // Added 'from' parameter to pass context to the frontend
     });
 });
+
+app.get('/user_details', async (req, res) => {
+    const username = req.query.username;
+
+    if (!username) {
+        return res.status(400).send("Username is required");
+    }
+
+    try {
+        // Fetch user details from Firestore
+        const userSnapshot = await db.collection('users').where('username', '==', username).get();
+
+        if (userSnapshot.empty) {
+            return res.status(404).send("User not found");
+        }
+
+        const user = userSnapshot.docs[0].data(); // Get the first matching user
+
+        // Extract last water usage
+        let lastWaterUsage = "No data";
+        if (user.water_usage && user.water_usage.length > 0) {
+            const todayEntry = user.water_usage[user.water_usage.length - 1];
+            lastWaterUsage = todayEntry.usage[todayEntry.usage.length - 1] || "No data";
+        }
+
+        // Render user_details.ejs with user data
+        res.render('user_details', { user, lastWaterUsage });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
+    }
+});
+
+
+
 
 
 
@@ -312,7 +424,7 @@ app.get('/user_dashboard', async (req, res) => {
 
 // Update water usage
 app.get('/update_water_usage', async (req, res) => {
-    const { apikey, new_usage } = req.query;
+    const { apikey, new_usage, bar } = req.query; // Added 'bar' parameter
 
     if (!apikey) {
         return res.status(400).json({ error: 'Invalid request. API key is required.' });
@@ -354,20 +466,24 @@ app.get('/update_water_usage', async (req, res) => {
             waterUsage.push({ date: currentDate, usage: [parseInt(new_usage, 10)] });
         }
 
-        // Update Firestore
-        await userRef.update({ water_usage: waterUsage });
+        // Prepare update data
+        let updateData = { water_usage: waterUsage };
 
-        return res.json({ waterLimit });
+        // If 'bar' parameter exists, update pressure value
+        if (bar !== undefined) {
+            updateData.pressure = parseFloat(bar); // Store pressure value
+        }
+
+        // Update Firestore
+        await userRef.update(updateData);
+
+        return res.json({ waterLimit, pressure: updateData.pressure || userData.pressure });
 
     } catch (error) {
         console.error('Error updating water usage:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-
-
-
 
 app.get('/trigger-reset', async (req, res) => {
     console.log('Manual reset triggered');
@@ -380,6 +496,49 @@ app.get('/trigger-reset', async (req, res) => {
     }
 });
 
+app.get('/request-extra-water', async (req, res) => {
+    try {
+        const username = req.query.username || ''; 
+
+        if (!username) {
+            return res.status(400).send("Username is required");
+        }
+
+        const extraWater = req.query.extraWater;
+
+        if (!extraWater) {
+            return res.render('extra_water_request', { username }); 
+        }
+
+        const userRef = db.collection('users').where('username', '==', username);
+        const snapshot = await userRef.get();
+
+        if (snapshot.empty) {
+            return res.status(404).send("User not found");
+        }
+
+        snapshot.forEach(async (doc) => {
+            const userDoc = doc.ref;
+            await userDoc.update({
+                extra_water_requests: admin.firestore.FieldValue.arrayUnion({
+                    amount: parseInt(extraWater),
+                    date: new Date().toISOString()
+                })
+            });
+        });
+        res.render('request_extra_water', { username });
+        // ✅ Redirect to the specific user's dashboard using their username
+        res.redirect(`/user_dashboard?username=${username}`);
+    } catch (error) {
+        console.error("Error processing request:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+
+
+
 
 
 // Start server
@@ -387,3 +546,4 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
+
